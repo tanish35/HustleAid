@@ -8,15 +8,10 @@ export default defineConfig({
   server: {
     port: 5174,
   },
-  plugins: [react()],
+   plugins: [react()],
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./src"),
-    },
-  },
-  css: {
-    postcss: {
-      plugins: [tailwindcss],
     },
   },
 });
