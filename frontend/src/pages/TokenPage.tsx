@@ -1,16 +1,38 @@
 import { useAccount, useReadContract } from "wagmi";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { CreditCard, Utensils, Heart, Bus } from 'lucide-react';
+import { CreditCard, Utensils, Heart, Bus } from "lucide-react";
 import { motion } from "framer-motion";
+import { abi } from "@/lib/abi";
 
 const CONTRACT_ADDRESS = "0xA50C611942886c7F04bD8BAFDF6353a3794fe8c6";
 
 const TOKEN_TYPES = [
-  { id: 0, name: "Loan", icon: CreditCard, description: "Financial assistance token" },
+  {
+    id: 0,
+    name: "Loan",
+    icon: CreditCard,
+    description: "Financial assistance token",
+  },
   { id: 1, name: "Food", icon: Utensils, description: "Food assistance token" },
-  { id: 2, name: "Healthcare", icon: Heart, description: "Healthcare assistance token" },
-  { id: 3, name: "Transportation", icon: Bus, description: "Transportation assistance token" },
+  {
+    id: 2,
+    name: "Healthcare",
+    icon: Heart,
+    description: "Healthcare assistance token",
+  },
+  {
+    id: 3,
+    name: "Transportation",
+    icon: Bus,
+    description: "Transportation assistance token",
+  },
 ];
 
 const TokensPage = () => {
@@ -18,28 +40,24 @@ const TokensPage = () => {
 
   const { data: tokens, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
-    abi: [{
-      inputs: [{ internalType: "address", name: "owner", type: "address" }],
-      name: "getAllTokensOfOwner",
-      outputs: [{ internalType: "uint256[4]", name: "", type: "uint256[4]" }],
-      stateMutability: "view",
-      type: "function",
-    }],
+    abi,
     functionName: "getAllTokensOfOwner",
     args: [address!],
-  });
+  }) as { data: number[] | bigint[]; isLoading: boolean };
 
   if (!address) {
     return (
       <div className="container mx-auto px-4 py-16">
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-center"
         >
           <h1 className="text-3xl font-bold mb-4">Connect Your Wallet</h1>
-          <p className="text-muted-foreground text-lg">Please connect your wallet to view your tokens.</p>
+          <p className="text-muted-foreground text-lg">
+            Please connect your wallet to view your tokens.
+          </p>
         </motion.div>
       </div>
     );
@@ -47,7 +65,7 @@ const TokensPage = () => {
 
   return (
     <div className="container mx-auto px-4 py-16">
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5 }}
@@ -86,7 +104,9 @@ const TokensPage = () => {
                         {tokens ? tokens[index].toString() : "0"}
                       </div>
                     )}
-                    <p className="text-sm text-muted-foreground mt-2">Tokens Available</p>
+                    <p className="text-sm text-muted-foreground mt-2">
+                      Tokens Available
+                    </p>
                   </CardContent>
                 </Card>
               </motion.div>
