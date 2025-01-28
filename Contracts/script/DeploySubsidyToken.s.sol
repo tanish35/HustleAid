@@ -14,4 +14,4 @@ contract DeploySubsidy is Script {
     }
 }
 
-//Contract Address: 0x4C956d01826ab96f7d9A050617cFBbd8B5df743b
+//Contract Address: 0xA50C611942886c7F04bD8BAFDF6353a3794fe8c6

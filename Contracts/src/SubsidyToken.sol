@@ -86,7 +86,7 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
         uint256 food,
         uint256 healthcare,
         uint256 transport
-    ) external onlyOwner {
+    ) external onlyMinter {
         uint256 expiry = block.timestamp + 30 days;
 
         if (loan > 0) {
