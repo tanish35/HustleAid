@@ -11,7 +11,8 @@ import {
 } from "@/components/ui/table";
 import { ArrowLeft } from "lucide-react";
 
-const CONTRACT_ADDRESS = "0xA50C611942886c7F04bD8BAFDF6353a3794fe8c6";
+const CONTRACT_ADDRESS: `0x${string}` =
+  (import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`) || "0x";
 
 const TOKEN_TYPES = [
   { id: 1, name: "Loan" },

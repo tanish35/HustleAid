@@ -13,8 +13,14 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
     uint256 public constant PERSONAL = 5;
 
     mapping(address => bool) public minters;
+    mapping(address => bool) public approvedVendors;
+    mapping(address => mapping(uint256 => bool)) public lockedTokens;
+    
     event MinterAdded(address indexed minter);
     event MinterRemoved(address indexed minter);
+    event VendorApproved(address indexed vendor);
+    event VendorRemoved(address indexed vendor);
+    event TokenLocked(address indexed vendor, uint256 tokenType, uint256 amount);
 
     struct ExpiryData {
         uint256 expiry;
@@ -67,6 +73,11 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
         _;
     }
 
+    modifier onlyApprovedVendor() {
+        require(approvedVendors[msg.sender], "Not an approved vendor");
+        _;
+    }
+
     function addMinter(address _minter) external onlyOwner {
         require(_minter != address(0), "Invalid minter address");
         require(!minters[_minter], "Already a minter");
@@ -78,6 +89,19 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
         require(minters[_minter], "Not a minter");
         minters[_minter] = false;
         emit MinterRemoved(_minter);
+    }
+
+    function addApprovedVendor(address _vendor) external onlyMinter {
+        require(_vendor != address(0), "Invalid vendor address");
+        require(!approvedVendors[_vendor], "Already an approved vendor");
+        approvedVendors[_vendor] = true;
+        emit VendorApproved(_vendor);
+    }
+
+    function removeApprovedVendor(address _vendor) external onlyMinter {
+        require(approvedVendors[_vendor], "Not an approved vendor");
+        approvedVendors[_vendor] = false;
+        emit VendorRemoved(_vendor);
     }
 
     function mintSubsidy(
@@ -126,10 +150,16 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
             balanceOf(msg.sender, tokenType) >= amount,
             "Insufficient balance"
         );
+        require(approvedVendors[to], "Recipient must be an approved vendor");
+        require(!lockedTokens[msg.sender][tokenType], "Tokens are locked");
 
         _safeTransferFrom(msg.sender, to, tokenType, amount, "");
         balances[msg.sender][tokenType] -= amount;
         balances[to][tokenType] += amount;
+
+        // Lock tokens and remove expiry for vendor
+        lockedTokens[to][tokenType] = true;
+        delete tokenExpiry[to][tokenType];
 
         transactions[msg.sender][tokenType].push(
             Transaction(to, amount, block.timestamp)
@@ -142,6 +172,7 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
             amount,
             block.timestamp
         );
+        emit TokenLocked(to, tokenType, amount);
     }
 
     function getAllTokensOfOwner(
@@ -175,6 +206,7 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
         upkeepNeeded = false;
         for (uint256 i = 1; i <= 4; i++) {
             if (
+                !lockedTokens[msg.sender][i] &&  // Only check non-locked tokens
                 block.timestamp > tokenExpiry[msg.sender][i].expiry &&
                 balanceOf(msg.sender, i) > 0
             ) {
@@ -187,6 +219,7 @@ contract SubsidyToken is ERC1155, Ownable(msg.sender), AutomationCompatible {
     function performUpkeep(bytes calldata) external override {
         for (uint256 i = 1; i <= 4; i++) {
             if (
+                !lockedTokens[msg.sender][i] &&  // Only burn non-locked tokens
                 block.timestamp > tokenExpiry[msg.sender][i].expiry &&
                 balanceOf(msg.sender, i) > 0
             ) {

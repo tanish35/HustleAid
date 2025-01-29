@@ -11,7 +11,8 @@ import { CreditCard, Utensils, Heart, Bus } from "lucide-react";
 import { Link } from "react-router-dom";
 import { abi } from "@/lib/abi";
 
-const CONTRACT_ADDRESS = "0xA50C611942886c7F04bD8BAFDF6353a3794fe8c6";
+const CONTRACT_ADDRESS: `0x${string}` =
+  (import.meta.env.VITE_CONTRACT_ADDRESS as `0x${string}`) || "0x";
 
 const TOKEN_TYPES = [
   {
