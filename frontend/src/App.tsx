@@ -2,7 +2,8 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Header from "./components/Header";
 // import HomePage from './pages/HomePage';
 import TokenPage from "./pages/TokenPage";
-import { TransactionDetails } from "./pages/TransactionDetailsPage";
+import VendorDetails from "./pages/VendorDetailsPage";
+import TransactionDetails from "./pages/TransactionDetailsPage";
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           path="/transactions/:tokenType"
           element={<TransactionDetails />}
         />
+        <Route path="/vendor/:walletAddress" element={<VendorDetails />} />
       </Routes>
     </Router>
   );

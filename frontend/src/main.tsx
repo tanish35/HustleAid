@@ -1,21 +1,26 @@
-import { Buffer } from 'buffer'
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import { WagmiProvider } from 'wagmi'
+import { Buffer } from "buffer";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import React from "react";
+import ReactDOM from "react-dom/client";
+import { WagmiProvider } from "wagmi";
 import { ThemeProvider } from "./components/Providers";
 
+import App from "./App.tsx";
+import { config } from "./wagmi.ts";
+import axios from "axios";
 
-import App from './App.tsx'
-import { config } from './wagmi.ts'
+import "./index.css";
 
-import './index.css'
+globalThis.Buffer = Buffer;
 
-globalThis.Buffer = Buffer
+const BACKEND_URL =
+  import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
 
-const queryClient = new QueryClient()
+axios.defaults.baseURL = BACKEND_URL;
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
+const queryClient = new QueryClient();
+
+ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="system" enableSystem>
       <WagmiProvider config={config}>
@@ -24,5 +29,5 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         </QueryClientProvider>
       </WagmiProvider>
     </ThemeProvider>
-  </React.StrictMode>,
-)
+  </React.StrictMode>
+);

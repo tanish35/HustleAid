@@ -1,3 +1,5 @@
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useParams, Link } from "react-router-dom";
 import { useAccount, useReadContract } from "wagmi";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,10 +29,16 @@ interface Transaction {
   timestamp: bigint;
 }
 
-export function TransactionDetails() {
+interface Vendor {
+  name: string;
+  walletAddress: string;
+}
+
+export default function TransactionDetails() {
   const { tokenType } = useParams<{ tokenType: string }>();
   const safeTokenType = Number(tokenType) || 0;
   const { address } = useAccount();
+  const [vendors, setVendors] = useState<Record<string, Vendor>>({});
 
   const { data: transactions, isLoading } = useReadContract({
     address: CONTRACT_ADDRESS,
@@ -61,13 +69,41 @@ export function TransactionDetails() {
     args: [address!, BigInt(safeTokenType)],
   }) as { data: Transaction[] | undefined; isLoading: boolean };
 
+  useEffect(() => {
+    const fetchVendors = async () => {
+      if (transactions) {
+        const vendorAddresses = [
+          ...new Set(transactions.map((tx) => tx.vendor)),
+        ];
+        const vendorData: Record<string, Vendor> = {};
+
+        for (const address of vendorAddresses) {
+          try {
+            const response = await axios.get(`/vendor/${address}`);
+            vendorData[address] = response.data;
+          } catch (error) {
+            console.error(`Error fetching vendor data for ${address}:`, error);
+            vendorData[address] = {
+              name: "Unknown Vendor",
+              walletAddress: address,
+            };
+          }
+        }
+
+        setVendors(vendorData);
+      }
+    };
+
+    fetchVendors();
+  }, [transactions]);
+
   const formatDate = (timestamp: bigint) => {
     return new Date(Number(timestamp) * 1000).toLocaleString();
   };
 
-  const formatAddress = (address: string) => {
-    return `${address.slice(0, 6)}...${address.slice(-4)}`;
-  };
+  // const formatAddress = (address: string) => {
+  //   return `${address.slice(0, 6)}...${address.slice(-4)}`;
+  // };
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -100,7 +136,14 @@ export function TransactionDetails() {
               <TableBody>
                 {transactions.map((tx, index) => (
                   <TableRow key={index}>
-                    <TableCell>{formatAddress(tx.vendor)}</TableCell>
+                    <TableCell>
+                      <Link
+                        to={`/vendor/${tx.vendor}`}
+                        className="text-primary hover:underline"
+                      >
+                        {vendors[tx.vendor]?.name || "Loading..."}
+                      </Link>
+                    </TableCell>
                     <TableCell>{tx.amount.toString()}</TableCell>
                     <TableCell>{formatDate(tx.timestamp)}</TableCell>
                   </TableRow>
