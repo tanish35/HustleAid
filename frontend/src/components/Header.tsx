@@ -1,8 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import axios from "axios";
 import { useConnect, useDisconnect, useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
 import { ModeToggle } from "@/components/ui/mode-toggle";
-import { Clipboard, Menu, X, Wallet } from 'lucide-react';
+import { Clipboard, Menu, X, Wallet } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "react-router-dom";
@@ -31,6 +32,33 @@ const Header = () => {
 
   const isActivePath = (path: string) => location.pathname === path;
 
+  useEffect(() => {
+    if (accountConnected && address) {
+      updateWalletAddress(address);
+    }
+  }, [accountConnected, address]);
+
+  const updateWalletAddress = async (walletAddress: string) => {
+    try {
+      await axios.post(
+        "/auth/updatewallet",
+        { walletAddress },
+        { withCredentials: true }
+      );
+      toast({
+        title: "Wallet Updated",
+        description: "Your wallet address has been successfully updated.",
+      });
+    } catch (error) {
+      console.error("Failed to update wallet address:", error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update your wallet address. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
   return (
     <motion.header
       initial={{ y: -100 }}
@@ -40,8 +68,8 @@ const Header = () => {
       <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-7xl">
         <div className="flex h-16 items-center justify-between">
           <div className="flex gap-4 items-center">
-            <Link 
-              to="/" 
+            <Link
+              to="/"
               className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:opacity-80"
             >
               <Wallet className="h-6 w-6 text-primary" />
@@ -53,7 +81,7 @@ const Header = () => {
                 { path: "/", label: "Home" },
                 { path: "/tokens", label: "My Tokens" },
                 { path: "/marketplace", label: "MarketPlace" },
-                { path: "/about", label: "About" }
+                { path: "/about", label: "About" },
               ].map(({ path, label }) => (
                 <Link
                   key={path}
@@ -62,7 +90,8 @@ const Header = () => {
                     "transition-all duration-200 hover:text-primary relative py-1 px-2 rounded-md",
                     "after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-200",
                     "hover:after:w-full",
-                    isActivePath(path) && "text-primary after:w-full bg-primary/10"
+                    isActivePath(path) &&
+                      "text-primary after:w-full bg-primary/10"
                   )}
                 >
                   {label}
@@ -73,7 +102,7 @@ const Header = () => {
 
           <div className="flex-row items-center hidden md:flex gap-4">
             {!accountConnected ? (
-             availableConnectors.slice(2, 3).map((connector) => (
+              availableConnectors.slice(2, 3).map((connector) => (
                 <Button
                   key={connector.id}
                   onClick={() => connect({ connector })}
@@ -88,7 +117,9 @@ const Header = () => {
               ))
             ) : (
               <div className="flex items-center gap-2 bg-gradient-to-r from-muted/80 to-muted/40 rounded-lg px-3 py-1.5 shadow-sm">
-                <span className="text-sm font-medium">{truncateAddress(address!)}</span>
+                <span className="text-sm font-medium">
+                  {truncateAddress(address!)}
+                </span>
                 <Button
                   onClick={() => handleCopy(address!)}
                   className="h-8 w-8 p-0 hover:bg-muted"
@@ -96,7 +127,11 @@ const Header = () => {
                 >
                   <Clipboard className="h-4 w-4" />
                 </Button>
-                <Button onClick={() => disconnect()} variant="outline" size="sm">
+                <Button
+                  onClick={() => disconnect()}
+                  variant="outline"
+                  size="sm"
+                >
                   Disconnect
                 </Button>
               </div>
@@ -108,10 +143,14 @@ const Header = () => {
             className="md:hidden p-2 hover:bg-muted rounded-lg transition-all duration-200"
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            {isMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
-        
+
         <AnimatePresence>
           {isMenuOpen && (
             <motion.div
@@ -126,7 +165,7 @@ const Header = () => {
                   { path: "/", label: "Home" },
                   { path: "/tokens", label: "My Tokens" },
                   { path: "/marketplace", label: "MarketPlace" },
-                  { path: "/about", label: "About" }
+                  { path: "/about", label: "About" },
                 ].map(({ path, label }) => (
                   <Link
                     key={path}
@@ -134,7 +173,8 @@ const Header = () => {
                     className={cn(
                       "px-4 py-2.5 hover:bg-muted rounded-lg transition-all duration-200",
                       "hover:translate-x-1",
-                      isActivePath(path) && "bg-primary/10 text-primary font-medium"
+                      isActivePath(path) &&
+                        "bg-primary/10 text-primary font-medium"
                     )}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -142,7 +182,7 @@ const Header = () => {
                   </Link>
                 ))}
               </nav>
-              
+
               <div className="flex flex-col space-y-4 p-4 border-t border-border/50">
                 {!accountConnected ? (
                   availableConnectors.map((connector) => (
@@ -158,7 +198,9 @@ const Header = () => {
                 ) : (
                   <div className="flex flex-col space-y-2">
                     <div className="flex items-center justify-between">
-                      <span className="text-sm font-medium">{truncateAddress(address!)}</span>
+                      <span className="text-sm font-medium">
+                        {truncateAddress(address!)}
+                      </span>
                       <Button
                         onClick={() => handleCopy(address!)}
                         className="h-8 w-8 p-0 hover:bg-muted"
@@ -167,7 +209,11 @@ const Header = () => {
                         <Clipboard className="h-4 w-4" />
                       </Button>
                     </div>
-                    <Button onClick={() => disconnect()} variant="outline" className="w-full">
+                    <Button
+                      onClick={() => disconnect()}
+                      variant="outline"
+                      className="w-full"
+                    >
                       Disconnect
                     </Button>
                   </div>

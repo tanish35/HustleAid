@@ -1,7 +1,8 @@
 import express from "express";
 import aadharRoutes from "./routes/aadharRoutes";
 import vendorRoutes from "./routes/vendorRoutes";
-import authRoutes from "./routes/authRoutes";
+import userRoutes from "./routes/userRoutes";
+// import authRoutes from "./routes/authRoutes";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -17,7 +18,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 
-app.use("/api/auth", authRoutes);
+app.use("/api/auth", userRoutes);
 app.use("/api/aadhar", aadharRoutes);
 app.use("/api/vendor", vendorRoutes);
 

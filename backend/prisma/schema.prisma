@@ -17,8 +17,9 @@ model User {
   userId    String   @id @default(cuid())
   name      String
   email     String   @unique
-  password  String
-  refreshToken String? @unique
+  password  String?
+  isVerified Boolean  @default(false)
+  walletId  String?
   aadhar    Aadhar?  @relation("UserAadhar")
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt

@@ -4,6 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom/client";
 import { WagmiProvider } from "wagmi";
 import { ThemeProvider } from "./components/Providers";
+import { Toaster } from "./components/ui/toaster.tsx";
 
 import App from "./App.tsx";
 import { config } from "./wagmi.ts";
@@ -17,6 +18,7 @@ const BACKEND_URL =
   import.meta.env.VITE_BACKEND_URL || "http://localhost:3000/api";
 
 axios.defaults.baseURL = BACKEND_URL;
+axios.defaults.withCredentials = true;
 
 const queryClient = new QueryClient();
 
@@ -26,6 +28,7 @@ ReactDOM.createRoot(document.getElementById("root")!).render(
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <App />
+          <Toaster />
         </QueryClientProvider>
       </WagmiProvider>
     </ThemeProvider>

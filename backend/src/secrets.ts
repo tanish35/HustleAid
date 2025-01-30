@@ -7,7 +7,6 @@ const secrets = {
   PORT: process.env.PORT,
   DATABASE_URL: process.env.DATABASE_URL,
   JWT_SECRET: process.env.JWT_SECRET,
-  JWT_REFRESH_TOKEN_SECRET: process.env.JWT_REFRESH_TOKEN_SECRET,
 };
 
 //Validate that all environment variables are set
