@@ -56,6 +56,7 @@ export const getAadharAddress = expressAsyncHandler(
       const aadharRecord = await prisma.aadhar.create({
         data: {
           address: address,
+          userId: req.user.userId, //doubt
         },
       });
       if (!aadharRecord) {
