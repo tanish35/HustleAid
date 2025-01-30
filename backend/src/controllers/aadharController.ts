@@ -1,4 +1,5 @@
 import expressAsyncHandler from "express-async-handler";
+import multer from "multer";
 import fs from "fs";
 import path from "path";
 import prisma from "../lib/prisma";
@@ -15,10 +16,22 @@ if (!GEMINI_API_KEY) {
   );
 }
 
-const mediaPath = path.resolve(__dirname, "../../public/aadhar");
+const mediaPath: string = path.resolve(__dirname, "../../public/aadhar");
 
-export const getAadharAddress = expressAsyncHandler(
-  async (req: any, res: any) => {
+const upload = multer({
+  storage: multer.diskStorage({
+    destination: (req, file, cb) => {
+      cb(null, mediaPath);
+    },
+    filename: (req, file, cb) => {
+      cb(null, "aadhar.jpg");
+    },
+  }),
+});
+
+export const getAadharAddress = [
+  upload.single("aadhar"),
+  expressAsyncHandler(async (req: any, res: any) => {
     // Check if a file was uploaded
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
@@ -79,5 +92,5 @@ export const getAadharAddress = expressAsyncHandler(
         fs.unlinkSync(filePath);
       }
     }
-  }
-);
+  }),
+];
