@@ -5,6 +5,7 @@
   "scripts": {
     "dev": "nodemon --exec ts-node src/index.ts",
     "build": "tsc",
+    "swagger": "ts-node src/swagger.ts",
     "migrate": "prisma migrate deploy",
     "start": "node dist/index.js",
     "generate": "npx prisma generate"
@@ -20,6 +21,7 @@
     "@types/cors": "^2.8.17",
     "@types/jsonwebtoken": "^9.0.8",
     "@types/nodemailer": "^6.4.17",
+    "@types/swagger-ui-express": "^4.1.7",
     "bcryptjs": "^2.4.3",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
@@ -31,13 +33,16 @@
     "jsonwebtoken": "^9.0.2",
     "multer": "^1.4.5-lts.1",
     "nodemailer": "^6.10.0",
-    "prisma": "^6.2.1"
+    "prisma": "^6.2.1",
+    "swagger-jsdoc": "^6.2.8"
   },
   "devDependencies": {
     "@types/bcryptjs": "^2.4.6",
     "@types/express": "^5.0.0",
     "@types/multer": "^1.4.12",
     "@types/node": "^22.10.10",
+    "swagger-autogen": "^2.23.7",
+    "swagger-ui-express": "^5.0.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.7.3"
   }
