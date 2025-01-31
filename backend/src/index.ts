@@ -6,6 +6,7 @@ import userRoutes from "./routes/userRoutes";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
 import cors from "cors";
+import { rateLimiterMiddleware } from "./middleware/rateLimiter";
 
 const app = express();
 
@@ -15,6 +16,8 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());
+
+app.use(rateLimiterMiddleware);
 
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from "./swagger-output.json";
