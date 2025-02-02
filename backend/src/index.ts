@@ -2,6 +2,7 @@ import express from "express";
 import aadharRoutes from "./routes/aadharRoutes";
 import vendorRoutes from "./routes/vendorRoutes";
 import userRoutes from "./routes/userRoutes";
+import bankRoutes from "./routes/bankRoutes";
 // import authRoutes from "./routes/authRoutes";
 import "dotenv/config";
 import cookieParser from "cookie-parser";
@@ -29,6 +30,7 @@ app.use(express.json());
 app.use("/api/auth", userRoutes);
 app.use("/api/aadhar", aadharRoutes);
 app.use("/api/vendor", vendorRoutes);
+app.use("/api/bank", bankRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
