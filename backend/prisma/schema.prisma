@@ -14,35 +14,39 @@ datasource db {
 }
 
 model User {
-  userId    String   @id @default(cuid())
-  name      String
-  email     String   @unique
-  password  String?
+  userId     String   @id @default(cuid())
+  name       String
+  email      String   @unique
+  password   String?
   isVerified Boolean  @default(false)
-  walletId  String?
-  aadhar    Aadhar?  @relation("UserAadhar")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  walletId   String?
+  aadhar     Aadhar?  @relation("UserAadhar")
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Aadhar {
-  aadharId  String  @id @default(uuid())
+  aadharId  String   @id @default(uuid())
   address   String
-  userId    String  @unique
-  user      User    @relation(fields: [userId], references: [userId], name: "UserAadhar",onDelete: Cascade)
+  userId    String   @unique
+  user      User     @relation(fields: [userId], references: [userId], name: "UserAadhar", onDelete: Cascade)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
 
-model Vendor{
-  vendorId String @id @default(cuid())
-  walletAddress String @unique
-  name String
-  email String
-  phone String
-  description String?
-  gstin String?
-  rating Float?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Admin {
+  userId     String   @id @unique
+}
+
+model Vendor {
+  vendorId      String   @id @default(cuid())
+  walletAddress String   @unique
+  name          String
+  email         String
+  phone         String
+  description   String?
+  gstin         String?
+  rating        Float?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

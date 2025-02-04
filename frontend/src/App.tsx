@@ -10,6 +10,7 @@ import VendorDetails from "./pages/VendorDetailsPage";
 import TransactionDetails from "./pages/TransactionDetailsPage";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import TrainBookingPage from "./pages/TrainBookingPage";
 
 function App() {
   return (
@@ -17,6 +18,7 @@ function App() {
       <Header />
       <Routes>
         <Route path="/auth" element={<AuthPage />} />
+        <Route path="/dummy/train" element={<TrainBookingPage />} />
 
         <Route element={<ProtectedRoute />}>
           <Route path="/tokens" element={<TokenPage />} />

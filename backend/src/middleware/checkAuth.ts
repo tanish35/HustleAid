@@ -6,7 +6,7 @@ interface AuthRequest extends Request {
   user?: any;
 }
 
-function requireAuth(
+export default function checkAuth(
   req: AuthRequest,
   res: Response,
   next: NextFunction
@@ -47,4 +47,4 @@ function requireAuth(
   }
 }
 
-export default requireAuth;
+// export default requireAuth;

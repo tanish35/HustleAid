@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useConnect, useDisconnect, useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { ModeToggle } from "@/components/ui/mode-toggle";
 import { Clipboard, Menu, X, Wallet } from "lucide-react";
+import { Sun, Moon } from "lucide-react";
+import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
 import { Link, useLocation } from "react-router-dom";
@@ -17,6 +18,7 @@ const Header = () => {
   const { disconnect } = useDisconnect();
   const { isConnected: accountConnected, address } = useAccount();
   const location = useLocation();
+  const { theme, setTheme } = useTheme();
 
   const handleCopy = (text: string) => {
     navigator.clipboard.writeText(text);
@@ -59,11 +61,26 @@ const Header = () => {
     }
   };
 
+  const ModeToggle = () => (
+    <Button
+      variant="outline"
+      size="icon"
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+      className="rounded-full w-10 h-10"
+    >
+      {theme === "dark" ? (
+        <Sun className="h-5 w-5" />
+      ) : (
+        <Moon className="h-5 w-5" />
+      )}
+    </Button>
+  );
+
   return (
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b bg-gradient-to-b from-background/95 to-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
     >
       <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-7xl">
         <div className="flex h-16 items-center justify-between">
@@ -72,7 +89,7 @@ const Header = () => {
               to="/"
               className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:opacity-80"
             >
-              <Wallet className="h-6 w-6 text-primary" />
+              <Wallet className="h-6 w-6" />
               <span className="font-bold text-lg">DeFi Tokens</span>
             </Link>
             <Separator orientation="vertical" className="h-6" />
@@ -80,8 +97,6 @@ const Header = () => {
               {[
                 { path: "/", label: "Home" },
                 { path: "/tokens", label: "My Tokens" },
-                { path: "/marketplace", label: "MarketPlace" },
-                { path: "/about", label: "About" },
               ].map(({ path, label }) => (
                 <Link
                   key={path}
@@ -107,22 +122,19 @@ const Header = () => {
                   key={connector.id}
                   onClick={() => connect({ connector })}
                   variant="outline"
-                  className="relative overflow-hidden group hover:border-primary transition-colors duration-300"
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
                 >
-                  <span className="relative z-10 group-hover:text-background transition-colors duration-300">
-                    Connect Metamask
-                  </span>
-                  <span className="absolute inset-0 transform translate-y-[101%] group-hover:translate-y-0 bg-gradient-to-r from-primary to-primary/80 transition-transform duration-300 ease-out" />
+                  Connect Metamask
                 </Button>
               ))
             ) : (
-              <div className="flex items-center gap-2 bg-gradient-to-r from-muted/80 to-muted/40 rounded-lg px-3 py-1.5 shadow-sm">
+              <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shadow-sm">
                 <span className="text-sm font-medium">
                   {truncateAddress(address!)}
                 </span>
                 <Button
                   onClick={() => handleCopy(address!)}
-                  className="h-8 w-8 p-0 hover:bg-muted"
+                  className="h-8 w-8 p-0 hover:bg-accent"
                   variant="ghost"
                 >
                   <Clipboard className="h-4 w-4" />
@@ -130,7 +142,7 @@ const Header = () => {
                 <Button
                   onClick={() => disconnect()}
                   variant="outline"
-                  size="sm"
+                  className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
                 >
                   Disconnect
                 </Button>
@@ -164,8 +176,6 @@ const Header = () => {
                 {[
                   { path: "/", label: "Home" },
                   { path: "/tokens", label: "My Tokens" },
-                  { path: "/marketplace", label: "MarketPlace" },
-                  { path: "/about", label: "About" },
                 ].map(({ path, label }) => (
                   <Link
                     key={path}
@@ -190,7 +200,7 @@ const Header = () => {
                       key={connector.id}
                       onClick={() => connect({ connector })}
                       variant="outline"
-                      className="w-full"
+                      className="w-full hover:bg-primary hover:text-primary-foreground"
                     >
                       Connect Wallet
                     </Button>
@@ -212,7 +222,7 @@ const Header = () => {
                     <Button
                       onClick={() => disconnect()}
                       variant="outline"
-                      className="w-full"
+                      className="w-full hover:bg-primary hover:text-primary-foreground"
                     >
                       Disconnect
                     </Button>
