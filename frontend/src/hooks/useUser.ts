@@ -8,6 +8,7 @@ interface UserDetails {
   isVerified: boolean;
   walletId?: string | null;
   panNo?: string | null;
+  aadhaarNo?: string | null;
   createdAt: string | Date;
 }
 
@@ -28,7 +29,7 @@ export const useUser = () => {
     }
   }
 
-  async function updateUserDetails() {
+  async function updateUserDetails(userDetails: UserDetails) {
     try {
       const res = await axios.post("/profile/update", {
         ...userDetails,

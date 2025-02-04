@@ -11,6 +11,8 @@ import { config } from "./wagmi.ts";
 import axios from "axios";
 
 import "./index.css";
+import { Tooltip } from "@radix-ui/react-tooltip";
+import { TooltipProvider } from "./components/ui/tooltip.tsx";
 
 globalThis.Buffer = Buffer;
 
@@ -25,12 +27,14 @@ const queryClient = new QueryClient();
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <ThemeProvider defaultTheme="system" enableSystem>
+      <TooltipProvider>
       <WagmiProvider config={config}>
         <QueryClientProvider client={queryClient}>
           <App />
           <Toaster />
         </QueryClientProvider>
       </WagmiProvider>
+      </TooltipProvider>
     </ThemeProvider>
   </React.StrictMode>
 );

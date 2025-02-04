@@ -139,15 +139,58 @@ const ProfilePage = () => {
 
   if (loadingUser) {
     return (
-      <div className="p-6 space-y-6 max-w-6xl mx-auto">
-        {/* Skeleton loader */}
-        <div className="rounded-lg border bg-card p-6 animate-pulse">
-          <div className="flex items-center space-x-4"></div>
-          <Skeleton className="h-20 w-20 rounded-full" />
-          <div className="space-y-3">
-            <Skeleton className="h-6 w-48" />
-            <Skeleton className="h-4 w-36" />
-            <Skeleton className="h-4 w-32" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Profile Card Skeleton */}
+          <div className="lg:col-span-1">
+            <Card className="h-fit border-[0.01rem] shadow-lg">
+              <CardContent className="p-6">
+                <div className="flex flex-col items-center space-y-6">
+                  <Skeleton className="h-24 w-24 rounded-full" />
+                  <div className="space-y-2 w-full text-center">
+                    <Skeleton className="h-6 w-40 mx-auto" />
+                    <Skeleton className="h-4 w-60 mx-auto" />
+                    <Skeleton className="h-4 w-60 mx-auto" />
+                  </div>
+                  <div className="w-full space-y-2">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                    <Skeleton className="h-4 w-3/4" />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Main Content Skeleton */}
+          <div className="lg:col-span-2 space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              {[1, 2, 3].map((i) => (
+                <Card key={i} className="p-4">
+                  <Skeleton className="h-4 w-20 mb-2" />
+                  <Skeleton className="h-8 w-24" />
+                </Card>
+              ))}
+            </div>
+            
+            <Card className="border-[0.01rem]">
+              <CardContent className="p-6 space-y-6">
+                <div className="space-y-4">
+                  <Skeleton className="h-8 w-40" />
+                  <div className="space-y-4">
+                    {[1, 2, 3].map((i) => (
+                      <div key={i} className="flex items-center space-x-4">
+                        <Skeleton className="h-12 w-12 rounded-full" />
+                        <div className="space-y-2 flex-1">
+                          <Skeleton className="h-4 w-full" />
+                          <Skeleton className="h-4 w-3/4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
         </div>
       </div>
