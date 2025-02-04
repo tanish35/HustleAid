@@ -139,10 +139,10 @@ const TrainBookingPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8 bg-white dark:bg-gray-900">
+    <div className="container mx-auto px-4 py-8">
       <div className="space-y-8">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-3xl font-bold tracking-tight text-foreground">
             Indian Railway Booking
           </h1>
           <p className="text-muted-foreground mt-2">
@@ -176,9 +176,9 @@ const TrainBookingPage = () => {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="p-2 border rounded-lg bg-white text-black dark:bg-gray-800 dark:text-white"
+                className="p-2 border rounded-lg text-foreground bg-background"
               />
-              <span className="font-medium">
+              <span className="font-medium text-foreground">
                 {getDayOfWeek(selectedDate)} Trains
               </span>
             </div>
@@ -195,11 +195,11 @@ const TrainBookingPage = () => {
                   <Card key={train.code}>
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold">{train.name}</h3>
+                        <h3 className="font-semibold text-foreground">{train.name}</h3>
                         <p className="text-sm text-muted-foreground">
                           {train.route} | {train.days.join(", ")}
                         </p>
-                        <p className="text-xs text-blue-600 mt-1">
+                        <p className="text-xs text-blue-600 dark:text-blue-400 mt-1">
                           Train No: {train.code}
                         </p>
                       </div>

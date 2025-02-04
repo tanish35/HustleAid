@@ -34,7 +34,6 @@ function App() {
         <Route path="/" element={<Dashboard/>} />
         <Route path="*" element={<Navigate to="/" replace />} />
         <Route path="/profile" element={<ProfilePage/>} />
-        {/* <Route path="*" element={<Navigate to="/tokens" replace />} /> */}
       </Routes>
     </Router>
   );
