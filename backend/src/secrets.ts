@@ -1,7 +1,7 @@
 import { config } from "dotenv";
 config();
 
-console.log("🗝️  Loading environment variables...");
+console.log("> Loading environment variables...");
 const secrets = {
   GEMINI_API_KEY: process.env.GEMINI_API_KEY,
   PORT: process.env.PORT,
@@ -17,5 +17,5 @@ Object.entries(secrets).forEach(([key, value]) => {
   }
 });
 
-console.log("🔐 Environment variables loaded.");
+console.log("> Environment variables loaded.");
 export default secrets;

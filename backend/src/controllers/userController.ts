@@ -185,14 +185,9 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
   }
 
   if (user) {
-    res.json({
-      userId: user.userId,
-      name: user.name,
-      email: user.email,
-      walletId: user.walletId,
-    });
+    res.status(200).json(user);
   } else {
-    res.status(404);
+    res.status(404).json({ message: "User not found" });
     throw new Error("User not found");
   }
 });

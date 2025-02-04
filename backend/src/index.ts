@@ -17,6 +17,7 @@ const corsOptions = {
 };
 app.use(cors(corsOptions));
 app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
 
 app.use(rateLimiterMiddleware);
 
@@ -34,5 +35,5 @@ app.use("/api/bank", bankRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`> Server is running on port ${PORT}`);
 });

@@ -11,6 +11,8 @@ import TransactionDetails from "./pages/TransactionDetailsPage";
 import AuthPage from "./pages/AuthPage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import TrainBookingPage from "./pages/TrainBookingPage";
+import Dashboard from "./components/dashboard/Dashboard";
+import ProfilePage from "./pages/Profile";
 
 function App() {
   return (
@@ -29,8 +31,9 @@ function App() {
           <Route path="/vendor/:walletAddress" element={<VendorDetails />} />
         </Route>
 
-        <Route path="/" element={<Navigate to="/tokens" replace />} />
-
+        <Route path="/" element={<Dashboard/>} />
+        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="/profile" element={<ProfilePage/>} />
         {/* <Route path="*" element={<Navigate to="/tokens" replace />} /> */}
       </Routes>
     </Router>

@@ -2,8 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useConnect, useDisconnect, useAccount } from "wagmi";
 import { Button } from "@/components/ui/button";
-import { Clipboard, Menu, X, Wallet } from "lucide-react";
-import { Sun, Moon } from "lucide-react";
+import { Clipboard, Menu, X, Wallet, Sun, Moon } from "lucide-react";
 import { useTheme } from "next-themes";
 import { useToast } from "@/hooks/use-toast";
 import { Separator } from "@/components/ui/separator";
@@ -42,15 +41,18 @@ const Header = () => {
 
   const updateWalletAddress = async (walletAddress: string) => {
     try {
-      await axios.post(
-        "/auth/updatewallet",
+      const response = await axios.post(
+        `/auth/updatewallet`,
         { walletAddress },
         { withCredentials: true }
       );
-      toast({
-        title: "Wallet Updated",
-        description: "Your wallet address has been successfully updated.",
-      });
+      
+      if (response.status === 200) {
+        toast({
+          title: "Wallet Updated",
+          description: "Your wallet address has been successfully updated.",
+        });
+      }
     } catch (error) {
       console.error("Failed to update wallet address:", error);
       toast({
@@ -61,12 +63,71 @@ const Header = () => {
     }
   };
 
+  const handleConnect = async (connector: any) => {
+    try {
+      await connect({ connector });
+    } catch (error) {
+      toast({
+        title: "Connection Failed",
+        description: "Failed to connect wallet. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDisconnect = async () => {
+    try {
+      await disconnect();
+      toast({
+        title: "Disconnected",
+        description: "Your wallet has been disconnected.",
+      });
+    } catch (error) {
+      console.error("Disconnect error:", error);
+    }
+  };
+
+  const WalletButton = () => (
+    !accountConnected ? (
+      availableConnectors.slice(2, 3).map((connector) => (
+        <Button
+          key={connector.id}
+          onClick={() => handleConnect(connector)}
+          variant="outline"
+          className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
+        >
+          Connect Metamask
+        </Button>
+      ))
+    ) : (
+      <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shadow-sm">
+        <span className="text-sm font-medium">
+          {truncateAddress(address!)}
+        </span>
+        <Button
+          onClick={() => handleCopy(address!)}
+          className="h-8 w-8 p-0 hover:bg-accent"
+          variant="ghost"
+        >
+          <Clipboard className="h-4 w-4" />
+        </Button>
+        <Button
+          onClick={handleDisconnect}
+          variant="outline"
+          className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
+        >
+          Disconnect
+        </Button>
+      </div>
+    )
+  );
+
   const ModeToggle = () => (
     <Button
       variant="outline"
       size="icon"
       onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-      className="rounded-full w-10 h-10"
+      className="rounded-full w-10 h-10 hover:bg-primary hover:text-primary-foreground transition-colors duration-300 hover:shadow-sm hover:scale-105 hover:cursor-pointer click:scale-95"
     >
       {theme === "dark" ? (
         <Sun className="h-5 w-5" />
@@ -90,7 +151,7 @@ const Header = () => {
               className="flex items-center gap-2 transition-all duration-200 hover:scale-105 hover:opacity-80"
             >
               <Wallet className="h-6 w-6" />
-              <span className="font-bold text-lg">DeFi Tokens</span>
+              <span className="font-bold text-lg">HustleAid</span>
             </Link>
             <Separator orientation="vertical" className="h-6" />
             <nav className="hidden md:flex space-x-6">
@@ -102,11 +163,12 @@ const Header = () => {
                   key={path}
                   to={path}
                   className={cn(
-                    "transition-all duration-200 hover:text-primary relative py-1 px-2 rounded-md",
-                    "after:absolute after:bottom-0 after:left-1/2 after:-translate-x-1/2 after:w-0 after:h-0.5 after:bg-primary after:transition-all after:duration-200",
-                    "hover:after:w-full",
+                    "transition-all duration-200 hover:text-primary relative py-2 px-2 rounded-md",
+                    "after:absolute after:bottom-0 after:left-0 after:w-full after:h-0.5 after:bg-primary",
+                    "after:transform after:scale-x-0 after:origin-bottom-right after:transition-transform after:duration-300",
+                    "hover:after:scale-x-100 hover:after:origin-bottom-left",
                     isActivePath(path) &&
-                      "text-primary after:w-full bg-primary/10"
+                      "text-primary after:scale-x-100 bg-primary/10"
                   )}
                 >
                   {label}
@@ -116,38 +178,7 @@ const Header = () => {
           </div>
 
           <div className="flex-row items-center hidden md:flex gap-4">
-            {!accountConnected ? (
-              availableConnectors.slice(2, 3).map((connector) => (
-                <Button
-                  key={connector.id}
-                  onClick={() => connect({ connector })}
-                  variant="outline"
-                  className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
-                >
-                  Connect Metamask
-                </Button>
-              ))
-            ) : (
-              <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shadow-sm">
-                <span className="text-sm font-medium">
-                  {truncateAddress(address!)}
-                </span>
-                <Button
-                  onClick={() => handleCopy(address!)}
-                  className="h-8 w-8 p-0 hover:bg-accent"
-                  variant="ghost"
-                >
-                  <Clipboard className="h-4 w-4" />
-                </Button>
-                <Button
-                  onClick={() => disconnect()}
-                  variant="outline"
-                  className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
-                >
-                  Disconnect
-                </Button>
-              </div>
-            )}
+            <WalletButton />
             <ModeToggle />
           </div>
 
@@ -182,9 +213,11 @@ const Header = () => {
                     to={path}
                     className={cn(
                       "px-4 py-2.5 hover:bg-muted rounded-lg transition-all duration-200",
-                      "hover:translate-x-1",
+                      "relative after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-primary",
+                      "after:transform after:scale-x-0 after:origin-bottom-right after:transition-transform after:duration-300",
+                      "hover:after:scale-x-100 hover:after:origin-bottom-left hover:translate-x-1",
                       isActivePath(path) &&
-                        "bg-primary/10 text-primary font-medium"
+                        "bg-primary/10 text-primary font-medium after:scale-x-100"
                     )}
                     onClick={() => setIsMenuOpen(false)}
                   >
@@ -198,7 +231,7 @@ const Header = () => {
                   availableConnectors.map((connector) => (
                     <Button
                       key={connector.id}
-                      onClick={() => connect({ connector })}
+                      onClick={() => handleConnect(connector)}
                       variant="outline"
                       className="w-full hover:bg-primary hover:text-primary-foreground"
                     >
@@ -220,7 +253,7 @@ const Header = () => {
                       </Button>
                     </div>
                     <Button
-                      onClick={() => disconnect()}
+                      onClick={handleDisconnect}
                       variant="outline"
                       className="w-full hover:bg-primary hover:text-primary-foreground"
                     >

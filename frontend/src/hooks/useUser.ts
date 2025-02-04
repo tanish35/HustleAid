@@ -1,9 +1,19 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
+interface UserDetails {
+  userId: string;
+  name: string;
+  email: string;
+  isVerified: boolean;
+  walletId?: string | null;
+  panNo?: string | null;
+  createdAt: string | Date;
+}
+
 export const useUser = () => {
   const [loadingUser, setLoadingUser] = useState(true);
-  const [userDetails, setUserDetails] = useState(null);
+  const [userDetails, setUserDetails] = useState<UserDetails>();
 
   async function getDetails() {
     try {
@@ -18,9 +28,20 @@ export const useUser = () => {
     }
   }
 
+  async function updateUserDetails() {
+    try {
+      const res = await axios.post("/profile/update", {
+        ...userDetails,
+      });
+      setUserDetails(res.data);
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   useEffect(() => {
     getDetails();
-  }, []); // Empty dependency array, so it runs only once on component mount
+  }, []);
 
   useEffect(() => {
     if (userDetails) {
@@ -28,5 +49,5 @@ export const useUser = () => {
     }
   }, [userDetails]); // Log userDetails whenever it changes
 
-  return { loadingUser, userDetails };
+  return { loadingUser, userDetails, updateUserDetails };
 };

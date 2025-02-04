@@ -127,7 +127,7 @@ const TrainBookingPage = () => {
 
   if (!address) {
     return (
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-4 py-8 bg-white dark:bg-gray-900">
         <div className="text-center">
           <h1 className="text-2xl font-bold mb-4">Connect Your Wallet</h1>
           <p className="text-muted-foreground">
@@ -139,7 +139,7 @@ const TrainBookingPage = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <div className="container mx-auto px-4 py-8 bg-white dark:bg-gray-900">
       <div className="space-y-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -176,7 +176,7 @@ const TrainBookingPage = () => {
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
                 min={new Date().toISOString().split("T")[0]}
-                className="p-2 border rounded-lg"
+                className="p-2 border rounded-lg bg-white text-black dark:bg-gray-800 dark:text-white"
               />
               <span className="font-medium">
                 {getDayOfWeek(selectedDate)} Trains
@@ -209,7 +209,7 @@ const TrainBookingPage = () => {
                           parseInt(transportationTokens) < 1 || isPending
                         }
                         variant="outline"
-                        className="hover:bg-[hsl(var(--color-primary))] hover:text-[hsl(var(--color-primary-foreground))] transition-colors duration-300"
+                        className="hover:bg-gray-100 dark:hover:bg-gray-700" // Updated for dark mode hover
                       >
                         {isPending ? "Processing..." : "Book (1 Token)"}
                       </Button>
