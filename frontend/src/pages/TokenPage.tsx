@@ -42,7 +42,7 @@ interface TokenCardProps {
   isLoading: boolean;
 }
 
- const TokenCard = ({ token, count, isLoading }: TokenCardProps) => {
+const TokenCard = ({ token, count, isLoading }: TokenCardProps) => {
   const Icon = token.icon;
   return (
     <motion.div
@@ -73,7 +73,7 @@ interface TokenCardProps {
             <Skeleton className="h-12 w-24" />
           ) : (
             <div className="space-y-1.5">
-              <div className="text-4xl font-extrabold bg-gradient-to-r from-primary to-primary/80">
+              <div className="text-4xl font-extrabold bg-gradient-to-r from-primary to-primary-foreground bg-clip-text text-transparent">
                 {count ? Number(count).toString() : "0"}
               </div>
               <p className="text-sm font-medium text-muted-foreground">
@@ -149,7 +149,11 @@ const TokensPage = () => {
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 lg:gap-8">
           {TOKEN_TYPES.map((token, index) => (
-            <Link to={`/transactions/${token.id}`} key={token.id} className="h-full">
+            <Link
+              to={`/transactions/${token.id}`}
+              key={token.id}
+              className="h-full"
+            >
               <TokenCard
                 token={token}
                 count={tokens && tokens[index]}
