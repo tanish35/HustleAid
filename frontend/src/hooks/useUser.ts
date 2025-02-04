@@ -1,54 +1,47 @@
 import axios from "axios";
-import { useEffect, useState } from "react";
-
-interface UserDetails {
-  userId: string;
-  name: string;
-  email: string;
-  isVerified: boolean;
-  walletId?: string | null;
-  panNo?: string | null;
-  aadhaarNo?: string | null;
-  createdAt: string | Date;
-}
+import { useCallback, useEffect, useState } from "react";
+import { UserDetails } from "@/shared/types";
 
 export const useUser = () => {
   const [loadingUser, setLoadingUser] = useState(true);
-  const [userDetails, setUserDetails] = useState<UserDetails>();
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
 
-  async function getDetails() {
+  const getDetails = useCallback(async () => {
     try {
-      const res = await axios.get("/auth/me", {
+      const res = await axios.get<UserDetails>("/auth/me", {
         withCredentials: true,
       });
-      setUserDetails(res.data);
-      setLoadingUser(false); // Move setLoading inside try block to ensure it's always set
-    } catch (err) {
-      console.log(err);
-      setLoadingUser(false); // Set loading to false in case of error
-    }
-  }
-
-  async function updateUserDetails(userDetails: UserDetails) {
-    try {
-      const res = await axios.post("/profile/update", {
-        ...userDetails,
+      setUserDetails({
+        ...res.data,
+        createdAt: new Date(res.data.createdAt),
       });
-      setUserDetails(res.data);
     } catch (err) {
-      console.log(err);
+      console.error(err);
+    } finally {
+      setLoadingUser(false);
     }
-  }
+  }, []);
 
-  useEffect(() => {
-    getDetails();
+  const updateUserDetails = useCallback(async (data: Partial<UserDetails>) => {
+    try {
+      const res = await axios.post<UserDetails>("/profile/update", data, {
+        withCredentials: true,
+      });
+      setUserDetails((prev) => ({
+        ...prev,
+        ...res.data,
+        createdAt: new Date(res.data.createdAt),
+      }));
+      return res.data;
+    } catch (err) {
+      console.error(err);
+      throw err;
+    }
   }, []);
 
   useEffect(() => {
-    if (userDetails) {
-      console.log("User details:", userDetails);
-    }
-  }, [userDetails]); // Log userDetails whenever it changes
+    getDetails();
+  }, [getDetails]);
 
   return { loadingUser, userDetails, updateUserDetails };
 };

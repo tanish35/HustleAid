@@ -6,9 +6,13 @@ import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
 import { Badge } from "@/components/ui/badge";
+<<<<<<< HEAD
 import { StatCard } from "@/components/profile/StatCard";
 import { VerificationProgress } from "@/components/VerificationProgress";
 import { ProfileDetails } from "@/components/ProfileDetails";
+=======
+import { Progress } from "@/components/ui/progress";
+>>>>>>> 8181dda (Fix mistakes)
 
 interface ProfileFormData {
   name: string;
@@ -18,7 +22,12 @@ interface ProfileFormData {
 }
 
 const ProfilePage = () => {
+<<<<<<< HEAD
   const { loadingUser, userDetails } = useUser();
+=======
+  const { userDetails } = useUser();
+  const { loadingUser, updateUserDetails } = useUser();
+>>>>>>> 8181dda (Fix mistakes)
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
