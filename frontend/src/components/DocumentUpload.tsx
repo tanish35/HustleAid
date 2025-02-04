@@ -7,11 +7,13 @@ import { useState, useEffect } from "react";
 interface DocumentUploadProps {
   label: string;
   onImageUpload: (file: File) => void;
-  currentImage?: string;
 }
 
-export const DocumentUpload = ({ label, onImageUpload, currentImage }: DocumentUploadProps) => {
-  const [fileName, setFileName] = useState<string | null>(currentImage || null);
+export const DocumentUpload = ({
+  label,
+  onImageUpload,
+}: DocumentUploadProps) => {
+  const [fileName, setFileName] = useState<string | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
@@ -65,16 +67,16 @@ export const DocumentUpload = ({ label, onImageUpload, currentImage }: DocumentU
               </div>
               {previewUrl && (
                 <div className="relative w-full aspect-[16/9] max-h-[400px]">
-                  {fileName.toLowerCase().endsWith('.pdf') ? (
-                    <embed 
-                      src={previewUrl} 
-                      type="application/pdf" 
+                  {fileName.toLowerCase().endsWith(".pdf") ? (
+                    <embed
+                      src={previewUrl}
+                      type="application/pdf"
                       className="absolute inset-0 w-full h-full"
                     />
                   ) : (
-                    <img 
-                      src={previewUrl} 
-                      alt="Preview" 
+                    <img
+                      src={previewUrl}
+                      alt="Preview"
                       className="absolute inset-0 w-full h-full object-contain bg-gray-50"
                     />
                   )}
