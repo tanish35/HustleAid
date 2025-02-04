@@ -46,7 +46,7 @@ const Header = () => {
         { walletAddress },
         { withCredentials: true }
       );
-      
+
       if (response.status === 200) {
         toast({
           title: "Wallet Updated",
@@ -87,7 +87,7 @@ const Header = () => {
     }
   };
 
-  const WalletButton = () => (
+  const WalletButton = () =>
     !accountConnected ? (
       availableConnectors.slice(2, 3).map((connector) => (
         <Button
@@ -101,9 +101,7 @@ const Header = () => {
       ))
     ) : (
       <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shadow-sm">
-        <span className="text-sm font-medium">
-          {truncateAddress(address!)}
-        </span>
+        <span className="text-sm font-medium">{truncateAddress(address!)}</span>
         <Button
           onClick={() => handleCopy(address!)}
           className="h-8 w-8 p-0 hover:bg-accent"
@@ -119,8 +117,7 @@ const Header = () => {
           Disconnect
         </Button>
       </div>
-    )
-  );
+    );
 
   const ModeToggle = () => (
     <Button
@@ -141,7 +138,7 @@ const Header = () => {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"
+      className="sticky top-0 z-50 w-full border-b bg-background dark:bg-background backdrop-blur transition-colors duration-300"
     >
       <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-7xl">
         <div className="flex h-16 items-center justify-between">

@@ -1,85 +1,47 @@
 @import "tailwindcss";
 
-@layer base {
-  :root {
-    --background: 220 15% 98%; /* Light Grayish Blue */
-    --foreground: 222 47% 12%; /* Dark Charcoal */
-    --card: 220 20% 97%; /* Soft Off-White */
-    --card-foreground: 222 47% 12%;
-    --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 12%;
-    --primary: #0a3d62; /* Deep Navy (Trust & Security) */
-    --primary-foreground: #ffffff;
-    --primary-bg: #e3f2fd; /* Soft Blue Background */
-    --secondary: var(--primary); /* Reuse Primary for Secondary */
-    --secondary-foreground: var(--primary-foreground);
-    --muted: 220 20% 92%;
-    --muted-foreground: 222 20% 38%;
-    --accent: #16a085; /* Emerald Green (Financial Growth) */
-    --accent-foreground: #ffffff;
-    --success: #2dce89; /* Bright Green (Success Messages) */
-    --success-foreground: #ffffff;
-    --warning: #ffb400; /* Amber (Alerts & Warnings) */
-    --warning-foreground: #222;
-    --destructive: #c0392b; /* Deep Red (Critical Errors) */
-    --destructive-foreground: #ffffff;
-    --border: 220 20% 80%;
-    --input: 220 20% 80%;
-    --ring: 222 90% 30%;
-    --radius: 0.5rem;
-
-    /* Dark Mode Variables */
-    .dark {
-      --background: 222 47% 10%;
-      --foreground: 220 40% 96%;
-      --card: 222 47% 12%;
-      --card-foreground: 220 40% 96%;
-      --popover: 222 47% 9%;
-      --popover-foreground: 220 40% 96%;
-      --primary: #1e88e5; /* Brighter Royal Blue */
-      --primary-foreground: #ffffff;
-      --secondary: var(--primary); /* Reuse Primary for Secondary */
-      --secondary-foreground: var(--primary-foreground);
-      --muted: 217 30% 18%;
-      --muted-foreground: 215 20% 65%;
-      --accent: #26c6da; /* Cyan Blue */
-      --accent-foreground: #ffffff;
-      --success: #38d39f; /* Bright Green */
-      --warning: #ffa726; /* Soft Orange */
-      --destructive: #e53935; /* Brighter Red */
-      --border: 220 30% 22%;
-      --input: 220 30% 22%;
-      --ring: 222 90% 55%;
-    }
-  }
-
-  /* System Preference for Dark Mode */
-  @media (prefers-color-scheme: dark) {
-    :root {
-      --primary: #1565c0; /* Stronger Blue for Trust */
-      --primary-bg: #0a1929; /* Darker Navy */
-    }
-  }
+@theme {
+  --color-background: hsl(0 0% 100%);
+  --color-foreground: hsl(222.2 84% 4.9%);
+  --color-card: hsl(0 0% 100%);
+  --color-card-foreground: hsl(222.2 84% 4.9%);
+  --color-button-border: hsl(214.3 31.8% 60%);
+  --color-popover: hsl(0 0% 100%);
+  --color-popover-foreground: hsl(222.2 84% 4.9%);
+  --color-primary: hsl(0 0% 0%);
+  --color-primary-foreground: hsl(0 0% 100%);
+  --color-secondary: hsl(210 40% 96.1%);
+  --color-secondary-foreground: hsl(222.2 47.4% 11.2%);
+  --color-muted: hsl(210 40% 96.1%);
+  --color-muted-foreground: hsl(215.4 16.3% 46.9%);
+  --color-accent: hsl(210 40% 96.1%);
+  --color-accent-foreground: hsl(222.2 47.4% 11.2%);
+  --color-destructive: hsl(0 84.2% 60.2%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+  --color-border: hsl(214.3 31.8% 91.4%);
+  --color-input: hsl(214.3 31.8% 91.4%);
+  --color-ring: hsl(222.2 84% 4.9%);
 }
 
-@layer components {
-  /* Hover Effect with Shimmer Animation */
-  .shine-hover {
-    @apply relative overflow-hidden transition-all duration-300;
-    &::before {
-      @apply content-[''] absolute top-0 left-0 w-full h-full;
-      background: linear-gradient(
-        45deg,
-        transparent 20%,
-        hsl(var(--primary) / 0.3) 50%,
-        transparent 80%
-      );
-      background-size: 200% 200%;
-      background-position: 200% 0;
-      transition: background-position 1.5s ease-in-out;
-    }
-    &:hover::before {
-      background-position: -100% 0;
-    }
-  }
+[data-theme="dark"] {
+  --color-background: hsl(220, 26%, 14%);
+  --color-card: hsl(220, 26%, 16%);
+  --color-foreground: hsl(220, 13%, 91%);
+  --color-card-foreground: hsl(220, 13%, 91%);
+  --color-button-border: hsl(220, 13%, 35%);
+  --color-popover: hsl(220, 26%, 14%);
+  --color-popover-foreground: hsl(220, 13%, 91%);
+  --color-primary: hsl(220, 13%, 91%);
+  --color-primary-foreground: hsl(220, 26%, 14%);
+  --color-secondary: hsl(220, 16%, 22%);
+  --color-secondary-foreground: hsl(220, 13%, 91%);
+  --color-muted: hsl(220, 16%, 22%);
+  --color-muted-foreground: hsl(220, 10%, 60%);
+  --color-accent: hsl(220, 16%, 22%);
+  --color-accent-foreground: hsl(220, 13%, 91%);
+  --color-destructive: hsl(0, 35%, 40%);
+  --color-destructive-foreground: hsl(220, 13%, 91%);
+  --color-border: hsl(220, 13%, 25%);
+  --color-input: hsl(220, 13%, 25%);
+  --color-ring: hsl(220, 13%, 70%);
 }

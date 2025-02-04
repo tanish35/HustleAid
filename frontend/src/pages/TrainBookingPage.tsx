@@ -195,7 +195,9 @@ const TrainBookingPage = () => {
                   <Card key={train.code}>
                     <CardContent className="p-4 flex items-center justify-between">
                       <div>
-                        <h3 className="font-semibold text-foreground">{train.name}</h3>
+                        <h3 className="font-semibold text-foreground">
+                          {train.name}
+                        </h3>
                         <p className="text-sm text-muted-foreground">
                           {train.route} | {train.days.join(", ")}
                         </p>
