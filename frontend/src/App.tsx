@@ -33,7 +33,7 @@ function App() {
         </Route>
 
         <Route path="/" element={<Dashboard />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
+        <Route path="*" element={<Navigate to="/" />} />
         <Route path="/profile" element={<ProfilePage />} />
       </Routes>
     </Router>

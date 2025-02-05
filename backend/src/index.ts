@@ -1,5 +1,5 @@
 import express from "express";
-import aadharRoutes from "./routes/aadharRoutes";
+import docVerify from "./routes/docVerify.routes";
 import vendorRoutes from "./routes/vendorRoutes";
 import userRoutes from "./routes/userRoutes";
 import bankRoutes from "./routes/bankRoutes";
@@ -18,8 +18,13 @@ const corsOptions = {
 app.use(cors(corsOptions));
 app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
-
 app.use(rateLimiterMiddleware);
+
+// req logger
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
 
 import swaggerUi from "swagger-ui-express";
 import swaggerFile from "./swagger-output.json";
@@ -29,7 +34,7 @@ app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerFile));
 app.use(express.json());
 
 app.use("/api/auth", userRoutes);
-app.use("/api/aadhar", aadharRoutes);
+app.use("/api/verify", docVerify);
 app.use("/api/vendor", vendorRoutes);
 app.use("/api/bank", bankRoutes);
 

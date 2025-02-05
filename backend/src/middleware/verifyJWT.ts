@@ -9,20 +9,18 @@ if (!JWT_SECRET) {
 }
 
 const verifyJWT = async (req: any, res: any, next: NextFunction) => {
-  const token =
-    req.cookies?.accessToken ||
-    req.header("Authorization")?.replace("Bearer ", "");
+  console.log("Verifying JWT...");
+  const token = req.cookies?.token;
 
   if (!token) {
     return res.status(401).json({ message: "user not logged in" });
   } else {
     try {
       const decoded = jwt.verify(token, JWT_SECRET);
-
       const user = await prisma.user.findUnique({
         where: {
           // @ts-ignore
-          userId: decoded.userId,
+          userId: decoded.sub,
         },
       });
 
@@ -31,8 +29,6 @@ const verifyJWT = async (req: any, res: any, next: NextFunction) => {
       }
 
       req.user = user;
-
-      //   req.user = decoded;
       next();
     } catch (err) {
       res.status(401).json({ message: "Invalid access token" });

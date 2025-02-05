@@ -3,20 +3,21 @@ import multer from "multer";
 import fs from "fs";
 import path from "path";
 import prisma from "../lib/prisma";
-import { GoogleAIFileManager } from "@google/generative-ai/server";
-import { GoogleGenerativeAI } from "@google/generative-ai";
-
-import secrets from "../secrets";
-
-const { GEMINI_API_KEY } = secrets;
-
-if (!GEMINI_API_KEY) {
-  throw new Error(
-    "GEMINI_API_KEY is not defined in the environment variables."
-  );
-}
+import Tesseract from "tesseract.js";
 
 const mediaPath: string = path.resolve(__dirname, "../../public/aadhar");
+
+export const createMediaDirectoryMiddleware = (req: any, res: any, next: any) => {
+  try {
+    if (!fs.existsSync(mediaPath)) {
+      fs.mkdirSync(mediaPath, { recursive: true });
+    }
+    next();
+  } catch (error) {
+    console.error(`Error creating directory ${mediaPath}:`, error);
+    res.status(500).json({ message: "Failed to create upload directory" });
+  }
+};
 
 const upload = multer({
   storage: multer.diskStorage({
@@ -24,72 +25,74 @@ const upload = multer({
       cb(null, mediaPath);
     },
     filename: (req, file, cb) => {
-      cb(null, "aadhar.jpg");
+      const timestamp = Date.now();
+      cb(null, `aadhar_${timestamp}.jpg`);
     },
   }),
 });
 
 export const getAadharAddress = [
+  createMediaDirectoryMiddleware,
   upload.single("aadhar"),
   expressAsyncHandler(async (req: any, res: any) => {
-    // Check if a file was uploaded
     if (!req.file) {
       return res.status(400).json({ message: "No file uploaded" });
     }
 
-    //   const filePath = path.join(mediaPath, "aadhar.jpg");
     const filePath = req.file.path;
+    const fileName = req.file.filename;
 
     try {
-      // Upload the file to Google AI
-      const fileManager = new GoogleAIFileManager(GEMINI_API_KEY);
-      console.log("Uploading Aadhar card image...");
-      const uploadResult = await fileManager.uploadFile(filePath, {
-        mimeType: "image/jpeg",
-        displayName: "aadhar.jpg",
-      });
-
-      // Process the image using Gemini AI
-      const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-      const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
-
       console.log("Processing Aadhar card image...");
-      const result = await model.generateContent([
-        "Extract the address from the Aadhar card image and provide it as a plain text response.",
-        {
-          fileData: {
-            fileUri: uploadResult.file.uri,
-            mimeType: uploadResult.file.mimeType,
-          },
-        },
-      ]);
+      const ocrResult = await Tesseract.recognize(
+        path.join(mediaPath, fileName),
+        "eng+hin"
+      );
 
-      const address = result.response.text();
-      console.log("Extracted Address:", address);
-      const aadharRecord = await prisma.aadhar.create({
-        data: {
-          address: address,
-          userId: req.user.userId, //doubt
-        },
-      });
-      if (!aadharRecord) {
-        return res
-          .status(500)
-          .json({ message: "Failed to create Aadhar record" });
+      const ocrText = ocrResult.data.text;
+      console.log("OCR Text:", ocrText);
+
+      // Extract Aadhar number
+      const aadharMatch = ocrText.match(/\d{4}\s\d{4}\s\d{4}/);
+      const aadharNo = aadharMatch ? aadharMatch[0].replace(/\s/g, '') : null;
+      console.log("Extracted Aadhar number:", aadharNo);
+      
+      if (!aadharNo) {
+        return res.status(400).json({ 
+          message: "Could not extract Aadhar number from the image" 
+        });
       }
 
-      // Delete the uploaded file after processing
-      fs.unlinkSync(filePath);
+      const updatedUser = await prisma.user.update({
+        where: {
+          userId: req.user.userId
+        },
+        data: {
+          aadharNo: aadharNo,
+        },
+      });
 
-      // Send the address back to the client
-      res.status(200).json({ address });
+      if (!updatedUser) {
+        return res.status(500).json({ message: "Failed to update user record" });
+      }
+
+      res.status(200).json({ 
+        aadharNo,
+        message: "Aadhar number extracted and updated successfully" 
+      });
     } catch (error) {
       console.error("Error processing Aadhar card image:", error);
-      res.status(500).json({ message: "Failed to process Aadhar card image" });
+      res.status(500).json({ 
+        message: "Failed to process Aadhar card image",
+        error: error instanceof Error ? error.message : 'Unknown error'
+      });
     } finally {
-      // Ensure the file is deleted even if an error occurs
-      if (fs.existsSync(filePath)) {
-        fs.unlinkSync(filePath);
+      try {
+        if (fs.existsSync(filePath)) {
+          fs.unlinkSync(filePath);
+        }
+      } catch (error) {
+        console.error("Error cleaning up file:", error);
       }
     }
   }),

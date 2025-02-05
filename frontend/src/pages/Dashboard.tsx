@@ -1,37 +1,55 @@
+import { useState } from "react";
 import { useUser } from "../hooks/useUser";
-import { Card, CardContent, CardHeader, CardTitle } from "../components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
-import { AlertCircle, Clock, Coins, RefreshCw, PieChart, Activity } from "lucide-react";
-import { Button } from "../components/ui/button";
-// Remove or modify the Icons import if not needed
-// import { Icons } from "../components/ui/icons";
+import {
+  Clock,
+  Coins,
+  Activity,
+  LayoutGrid,
+  List,
+} from "lucide-react";
 import { ProfileCard } from "../components/dashboard/ProfileCard";
+import { TokenListView } from "../components/dashboard/TokenListView";
+import { TokenCardView } from "../components/dashboard/TokenCardView";
+import { api } from "@/lib/axios";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { TokenType, UserToken } from "@/types";
 
 const Dashboard = () => {
+  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
   const { loadingUser, userDetails } = useUser();
-
+  const navigate = useNavigate();
+  const { toast } = useToast();
   const handleProfileClick = () => {
-    window.location.href = "/profile";
+    navigate("/profile");
   };
 
   const dummyActivity = [
-    { 
-      description: "Received Education Grant", 
+    {
+      description: "Received Education Grant",
       timestamp: "2023-09-01T10:00:00Z",
       type: "credit",
-      amount: 500
+      amount: 500,
     },
-    { 
-      description: "Used Healthcare Token", 
+    {
+      description: "Used Healthcare Token",
       timestamp: "2023-09-02T15:30:00Z",
       type: "debit",
-      amount: 100
+      amount: 100,
     },
-    { 
-      description: "Housing Assistance Approved", 
+    {
+      description: "Housing Assistance Approved",
       timestamp: "2023-09-03T09:15:00Z",
       type: "credit",
-      amount: 800
+      amount: 800,
     },
   ];
 
@@ -39,16 +57,36 @@ const Dashboard = () => {
     ? userDetails.activity
     : dummyActivity;
 
+  const transformUserTokens = (userTokens: UserToken[]) => {
+    return userTokens.map(token => ({
+      id: token.tokenId,
+      name: token.tokenType,
+      count: token.balance,
+      description: getTokenDescription(token.tokenType),
+      status: token.balance > 0 ? 'active' : 'pending'
+    }));
+  };
+
+  const getTokenDescription = (tokenType: TokenType) => {
+    const descriptions: Record<TokenType, string> = {
+      'Loan': 'Financial assistance',
+      'Food': 'Meal support',
+      'Healthcare': 'Medical aid',
+      'Transportation': 'Travel assistance'
+    };
+    return descriptions[tokenType];
+  };
+
   const dummyTokens = [
-    { id: 1, name: "Loan", count: 5 },
-    { id: 2, name: "Food", count: 10 },
-    { id: 3, name: "Healthcare", count: 3 },
-    { id: 4, name: "Transportation", count: 7 },
-    { id: 5, name: "Education", count: 4 },
-    { id: 6, name: "Housing", count: 2 },
+    { id: 1, name: "Loan" as TokenType, description: "Financial assistance", count: 0, status: 'pending' },
+    { id: 2, name: "Food" as TokenType, description: "Meal support", count: 5, status: 'active' },
+    { id: 3, name: "Healthcare" as TokenType, description: "Medical aid", count: 0, status: 'pending' },
+    { id: 4, name: "Transportation" as TokenType, description: "Travel assistance", count: 0, status: 'pending' },
   ];
 
-  const tokens = userDetails?.tokens?.length ? userDetails.tokens : dummyTokens;
+  const tokens = userDetails?.tokens?.length 
+    ? transformUserTokens(userDetails.tokens)
+    : dummyTokens;
 
   if (loadingUser) {
     return (
@@ -59,80 +97,62 @@ const Dashboard = () => {
   }
 
   if (!userDetails) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-6">
-        <Card className="w-full max-w-md border-destructive/50">
-          <CardContent className="p-6 flex flex-col items-center space-y-4">
-            <AlertCircle className="h-12 w-12 text-destructive" />
-            <h2 className="text-xl font-bold">Profile Unavailable</h2>
-            <p className="text-center text-muted-foreground">
-              We couldn't retrieve your profile data. Please try again.
-            </p>
-            <Button variant="destructive">
-              <RefreshCw className="mr-2 h-4 w-4" />
-              Retry
-            </Button>
-          </CardContent>
-        </Card>
-      </div>
-    );
+    navigate("/auth");
   }
+
+  const onLogout = async () => {
+    await api.get("/auth/logout");
+    toast({
+      title: "Logged out successfully",
+      description: "You have been logged out from your account",
+    });
+    navigate("/auth");
+  };
+
+  const handleTokenClick = (tokenId: number) => {
+    navigate(`/transactions/${tokenId}`);
+  };
+
+  const toggleView = () => {
+    setViewMode(viewMode === 'list' ? 'grid' : 'list');
+  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-1 space-y-8">
-          <ProfileCard userDetails={userDetails} onProfileClick={handleProfileClick} />
-          
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center">
-                <PieChart className="h-5 w-5 mr-2 text-primary" />
-                Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Total Assistance Received</span>
-                  <span className="font-medium">${userDetails?.totalAssistance || "1,400"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Active Programs</span>
-                  <span className="font-medium">{userDetails?.activePrograms || "3"}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-muted-foreground">Completed Programs</span>
-                  <span className="font-medium">{userDetails?.completedPrograms || "2"}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+        <div className="lg:col-span-1">
+          <ProfileCard
+            userDetails={userDetails}
+            onProfileClick={handleProfileClick}
+            onLogout={onLogout}
+          />
         </div>
-
         <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <CardHeader>
+          <Card className="overflow-hidden">
+            <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center">
                 <Coins className="h-5 w-5 mr-2 text-primary" />
                 Your Tokens
               </CardTitle>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleView}
+                className="ml-2"
+              >
+                {viewMode === 'list' ? (
+                  <LayoutGrid className="h-5 w-5" />
+                ) : (
+                  <List className="h-5 w-5" />
+                )}
+              </Button>
             </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {tokens.map((token: any) => (
-                  <div
-                    key={token.id}
-                    className="flex items-center space-x-3 p-4 bg-muted/50 rounded-lg"
-                  >
-                    <div className="text-primary font-bold text-lg">{token.count}</div>
-                    <div>
-                      <p className="text-sm font-medium">{token.name}</p>
-                      <p className="text-xs text-muted-foreground">Available</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
+            <CardContent className="p-4">
+              {viewMode === 'list' ? (
+                <TokenListView tokens={tokens} onTokenClick={handleTokenClick} />
+              ) : (
+                <TokenCardView tokens={tokens} onTokenClick={handleTokenClick} />
+              )}
             </CardContent>
           </Card>
 
@@ -152,15 +172,22 @@ const Dashboard = () => {
                       className="flex items-start p-4 bg-muted/50 rounded-lg"
                     >
                       <div className="flex-1">
-                        <p className="text-sm font-medium">{activity.description}</p>
+                        <p className="text-sm font-medium">
+                          {activity.description}
+                        </p>
                         <div className="flex justify-between items-center mt-1">
                           <p className="text-xs text-muted-foreground">
                             {new Date(activity.timestamp).toLocaleString()}
                           </p>
-                          <span className={`text-xs font-medium ${
-                            activity.type === 'credit' ? 'text-green-600' : 'text-red-600'
-                          }`}>
-                            {activity.type === 'credit' ? '+' : '-'}${activity.amount}
+                          <span
+                            className={`text-xs font-medium ${
+                              activity.type === "credit"
+                                ? "text-green-600"
+                                : "text-red-600"
+                            }`}
+                          >
+                            {activity.type === "credit" ? "+" : "-"}$
+                            {activity.amount}
                           </span>
                         </div>
                       </div>
@@ -173,15 +200,14 @@ const Dashboard = () => {
                   <h3 className="text-lg font-medium">No Recent Activity</h3>
                   <p className="text-sm text-muted-foreground">
                     Your recent transactions will appear here
-                  </p>
+                  </p>{" "}
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </div>
-      </div>
+              )}{" "}
+            </CardContent>{" "}
+          </Card>{" "}
+        </div>{" "}
+      </div>{" "}
     </div>
   );
 };
-
 export default Dashboard;

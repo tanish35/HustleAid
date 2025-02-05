@@ -9,12 +9,23 @@ import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/profile/StatCard";
 import { VerificationProgress } from "@/components/VerificationProgress";
 import { ProfileDetails } from "@/components/ProfileDetails";
+import { Link } from "react-router-dom";
+import { Home } from "lucide-react";
+import {
+  Breadcrumb,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbList,
+  BreadcrumbPage,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { api } from "@/lib/axios";
 
 interface ProfileFormData {
   name: string;
   email: string;
   panCard: File | null;
-  aadhaarCard: File | null;
+  aadharCard: File | null;
 }
 
 const ProfilePage = () => {
@@ -26,7 +37,7 @@ const ProfilePage = () => {
     name: "",
     email: "",
     panCard: null,
-    aadhaarCard: null,
+    aadharCard: null,
   });
 
   useEffect(() => {
@@ -35,7 +46,7 @@ const ProfilePage = () => {
         name: userDetails.name || "",
         email: userDetails.email || "",
         panCard: null,
-        aadhaarCard: null,
+        aadharCard: null,
       });
     }
   }, [userDetails]);
@@ -45,45 +56,45 @@ const ProfilePage = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const processDocuments = async (data: ProfileFormData) => {
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        // Randomly succeed or fail to simulate real API behavior
-        if (Math.random() > 0.3) {
-          resolve({
-            success: true,
-            message: "Documents processed successfully",
-            data: {
-              panNo: "XXXXX1234X",
-              aadhaarNo: "XXXX-XXXX-XXXX",
-            },
-          });
-        } else {
-          reject(new Error("Failed to process documents"));
-        }
-      }, 2000);
-    });
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log(formData);
     setIsSubmitting(true);
     try {
-      const result = await processDocuments(formData);
-      toast({
-        title: "Profile updated",
-        description: "Your documents have been processed successfully.",
-      });
-      // Update local state with new document numbers
-      if (userDetails) {
-        userDetails.panNo = (result as any).data.panNo;
-        userDetails.aadhaarNo = (result as any).data.aadhaarNo;
+      const form = new FormData();
+
+      if (formData.name || formData.email) {
+        console.log("name or email is changed");
       }
-      setIsEditing(false);
+
+      if (formData.panCard) form.append("pan", formData.panCard);
+      if (formData.aadharCard) form.append("aadhar", formData.aadharCard);
+
+      let resP: any, resA: any;
+      if (formData.panCard) {
+        resP = await api.post("/verify/pan", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+      if (formData.aadharCard) {
+        resA = await api.post("/verify/adhar", form, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
+      }
+
+      if (!resP || (resP.status === 200 && (!resA || resA.status === 200))) {
+        toast({
+          title: "Success",
+          description: "Documents verified successfully",
+        });
+        setIsEditing(false);
+      } else {
+        throw new Error("Document verification failed");
+      }
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to process documents. Please try again.",
+        description: "Failed to verify documents. Please try again.",
         variant: "destructive",
       });
     } finally {
@@ -116,9 +127,9 @@ const ProfilePage = () => {
       imageUrl: userDetails?.panNo || null,
       isVerified: !!userDetails?.panNo,
     },
-    aadhaar: {
-      imageUrl: userDetails?.aadhaarNo || null,
-      isVerified: !!userDetails?.aadhaarNo,
+    aadhar: {
+      imageUrl: userDetails?.aadharNo || null,
+      isVerified: !!userDetails?.aadharNo,
     },
   };
 
@@ -132,8 +143,8 @@ const ProfilePage = () => {
       isVerified: !!userDetails?.panNo,
     },
     {
-      label: "Aadhaar Card Verification",
-      isVerified: !!userDetails?.aadhaarNo,
+      label: "aadhar Card Verification",
+      isVerified: !!userDetails?.aadharNo,
     },
   ];
 
@@ -218,6 +229,23 @@ const ProfilePage = () => {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <Breadcrumb className="mb-6">
+        <BreadcrumbList>
+          <BreadcrumbItem>
+            <BreadcrumbLink asChild>
+              <Link to="/dashboard" className="flex items-center">
+                <Home className="h-4 w-4 mr-1" />
+                Dashboard
+              </Link>
+            </BreadcrumbLink>
+          </BreadcrumbItem>
+          <BreadcrumbSeparator />
+          <BreadcrumbItem>
+            <BreadcrumbPage>Profile</BreadcrumbPage>
+          </BreadcrumbItem>
+        </BreadcrumbList>
+      </Breadcrumb>
+
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Profile Overview Card - Left Column */}
         <Card className="lg:col-span-1 h-fit border-[0.01rem] shadow-lg bg-gradient-to-br from-primary/10 via-primary/5 to-background">

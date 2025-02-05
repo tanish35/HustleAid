@@ -10,11 +10,11 @@ export interface UserDetails {
   activity?: UserActivity[];
   tokens?: UserToken[];
   panCardImage?: string;
-  aadhaarCardImage?: string;
+  aadharCardImage?: string;
   totalFundsReceived?: number;
   activeSchemes?: number;
   approvedApplications?: number;
-  aadhaarNo?: string;
+  aadharNo?: string;
 }
 
 export interface UserActivity {
