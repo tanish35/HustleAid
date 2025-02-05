@@ -11,7 +11,7 @@ const sendMail = (
   const password = process.env.SMTP_PASSWORD;
   let transporter = nodemailer.createTransport({
     // @ts-ignore
-    host: "smtp.gmail.com",
+    host: "smtp.sendgrid.net",
     port: port,
     secure: true,
     auth: {
