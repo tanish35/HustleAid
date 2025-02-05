@@ -19,23 +19,14 @@ export const register = asyncHandler(async (req: Request, res: Response) => {
   const salt = await bcrypt.genSalt(10);
   const hashedPassword = await bcrypt.hash(password, salt);
 
-  // const user = await prisma.user.create({
-  //   data: {
-  //     name,
-  //     email,
-  //     password: hashedPassword,
-  //     walletId,
-  //   },
-  // });
-
-  const user = {
-    userId: "123",
-    name,
-    email,
-    walletId,
-    isVerified: false,
-    password: hashedPassword,
-  };
+  const user = await prisma.user.create({
+    data: {
+      name,
+      email,
+      password: hashedPassword,
+      walletId,
+    },
+  });
 
   const verificationToken = jwt.sign({ userId: user.userId }, JWT_SECRET, {
     expiresIn: "1d",
