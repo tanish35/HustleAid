@@ -94,25 +94,29 @@ const Header = () => {
           key={connector.id}
           onClick={() => handleConnect(connector)}
           variant="outline"
-          className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
+          className="hover:bg-primary/90 hover:text-primary-foreground hover:scale-105 transition-all duration-300 shadow-sm hover:shadow-md"
         >
+          <Wallet className="w-4 h-4 mr-2" />
           Connect Metamask
         </Button>
       ))
     ) : (
-      <div className="flex items-center gap-2 bg-muted rounded-lg px-3 py-1.5 shadow-sm">
-        <span className="text-sm font-medium">{truncateAddress(address!)}</span>
+      <div className="flex items-center gap-2 bg-muted/50 backdrop-blur rounded-lg px-4 py-2 shadow-sm hover:shadow-md transition-all duration-300 border border-border/50">
+        <span className="text-sm font-medium bg-gradient-to-r from-primary to-primary/50 bg-clip-text text-transparent">
+          {truncateAddress(address!)}
+        </span>
         <Button
           onClick={() => handleCopy(address!)}
-          className="h-8 w-8 p-0 hover:bg-accent"
+          className="h-8 w-8 p-0 hover:bg-accent hover:scale-105 transition-all duration-300"
           variant="ghost"
         >
           <Clipboard className="h-4 w-4" />
         </Button>
+        <Separator orientation="vertical" className="h-6" />
         <Button
           onClick={handleDisconnect}
-          variant="outline"
-          className="hover:bg-primary hover:text-primary-foreground transition-colors duration-300"
+          variant="ghost"
+          className="hover:bg-destructive/90 hover:text-destructive-foreground transition-all duration-300"
         >
           Disconnect
         </Button>
@@ -138,9 +142,10 @@ const Header = () => {
     <motion.header
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      className="sticky top-0 z-50 w-full border-b bg-background dark:bg-background backdrop-blur transition-colors duration-300"
+      className="sticky top-0 z-50 w-full py-1 border-b bg-background/50 dark:bg-background/50 backdrop-blur-xl transition-all duration-300 shadow-sm"
     >
-      <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-7xl">
+      <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-primary/5 dark:from-primary/10 dark:via-transparent dark:to-primary/10" />
+      <div className="container mx-auto px-4 md:px-8 lg:px-12 max-w-7xl relative">
         <div className="flex h-16 items-center justify-between">
           <div className="flex gap-4 items-center">
             <Link
@@ -197,29 +202,34 @@ const Header = () => {
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
               exit={{ height: 0, opacity: 0 }}
-              transition={{ duration: 0.3 }}
-              className="md:hidden overflow-hidden"
+              transition={{ duration: 0.3, ease: "easeInOut" }}
+              className="md:hidden overflow-hidden bg-background/95 backdrop-blur-lg border-t border-border/50"
             >
               <nav className="flex flex-col space-y-2 py-4">
                 {[
                   { path: "/", label: "Home" },
                   { path: "/tokens", label: "My Tokens" },
                 ].map(({ path, label }) => (
-                  <Link
+                  <motion.div
                     key={path}
-                    to={path}
-                    className={cn(
-                      "px-4 py-2.5 hover:bg-muted rounded-lg transition-all duration-200",
-                      "relative after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-primary",
-                      "after:transform after:scale-x-0 after:origin-bottom-right after:transition-transform after:duration-300",
-                      "hover:after:scale-x-100 hover:after:origin-bottom-left hover:translate-x-1",
-                      isActivePath(path) &&
-                        "bg-primary/10 text-primary font-medium after:scale-x-100"
-                    )}
-                    onClick={() => setIsMenuOpen(false)}
+                    whileHover={{ x: 8 }}
+                    whileTap={{ scale: 0.98 }}
                   >
-                    {label}
-                  </Link>
+                    <Link
+                      to={path}
+                      className={cn(
+                        "px-4 py-2.5 hover:bg-muted rounded-lg transition-all duration-200 block",
+                        "relative after:absolute after:bottom-0 after:left-2 after:right-2 after:h-0.5 after:bg-primary",
+                        "after:transform after:scale-x-0 after:origin-bottom-right after:transition-transform after:duration-300",
+                        "hover:after:scale-x-100 hover:after:origin-bottom-left",
+                        isActivePath(path) &&
+                          "bg-primary/10 text-primary font-medium after:scale-x-100"
+                      )}
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      {label}
+                    </Link>
+                  </motion.div>
                 ))}
               </nav>
 

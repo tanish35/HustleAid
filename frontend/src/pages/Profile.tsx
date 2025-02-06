@@ -5,7 +5,6 @@ import { useUser } from "@/hooks/useUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@radix-ui/react-avatar";
 import { AlertCircle, CheckCircle2 } from "lucide-react";
 import { useState, useEffect } from "react";
-import { Badge } from "@/components/ui/badge";
 import { StatCard } from "@/components/profile/StatCard";
 import { VerificationProgress } from "@/components/VerificationProgress";
 import { ProfileDetails } from "@/components/ProfileDetails";
@@ -20,6 +19,7 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { api } from "@/lib/axios";
+import { motion } from "framer-motion";
 
 interface ProfileFormData {
   name: string;
@@ -27,6 +27,101 @@ interface ProfileFormData {
   panCard: File | null;
   aadharCard: File | null;
 }
+
+interface VerificationResponse {
+  success: boolean;
+  message: string;
+}
+
+const ProfileCard = ({
+  userDetails,
+  verificationItems,
+}: {
+  userDetails: any;
+  verificationItems: any[];
+}) => {
+  const isFullyVerified = verificationItems.every((item) => item.isVerified);
+
+  return (
+    <Card className="lg:col-span-1 backdrop-blur-sm  bg-background/60 border-1  border-border/50 rounded-xl shadow-xl">
+      <CardContent className="p-8 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/5 to-background/20 rounded-xl" />
+        <div className="relative z-10">
+          <div className="flex flex-col items-center space-y-6">
+            <motion.div
+              whileHover={{ scale: 1.02 }}
+              transition={{ type: "spring", stiffness: 400 }}
+            >
+              <div className="relative inline-block">
+                <div className="absolute -inset-0.5 bg-gradient-to-r from-primary/50 to-primary/30 rounded-full blur opacity-70" />
+                <Avatar className="h-32 w-32 ring-2 ring-background relative">
+                  <AvatarImage
+                    src={
+                      userDetails?.avatar ||
+                      "https://media.gq-magazine.co.uk/photos/5d13a4349fa60175c8839622/1:1/w_1280,h_1280,c_limit/Ana-de-Armas-GQ-8Jun17_rex_b.jpg"
+                    }
+                    alt={userDetails?.name}
+                    className="object-cover rounded-full"
+                  />
+                  <AvatarFallback className="bg-primary/5 text-3xl font-light">
+                    {userDetails?.name?.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+              </div>
+            </motion.div>
+
+            <div className="text-center space-y-2">
+              <h2 className="text-2xl font-light tracking-tight">
+                {userDetails?.name}
+              </h2>
+              <p className="text-sm text-muted-foreground">
+                {userDetails?.email}
+              </p>
+            </div>
+
+            {isFullyVerified ? (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full"
+              >
+                <div className="text-center px-4 py-3 rounded-lg bg-primary/5 border border-primary/10">
+                  <span className="text-sm text-primary/80 flex items-center justify-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4" />
+                    Account fully verified
+                  </span>
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="w-full"
+              >
+                <div className="text-center px-4 py-3 rounded-lg bg-destructive/5 border border-destructive/10">
+                  <span className="text-sm text-destructive/80 flex items-center justify-center gap-1.5">
+                    <AlertCircle className="h-4 w-4" />
+                    Incomplete account verification
+                  </span>
+                </div>
+              </motion.div>
+            )}
+
+            <motion.div
+              className="w-full space-y-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.3 }}
+            >
+              <VerificationProgress items={verificationItems} />
+            </motion.div>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 
 const ProfilePage = () => {
   const { loadingUser, userDetails } = useUser();
@@ -58,43 +153,68 @@ const ProfilePage = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log(formData);
     setIsSubmitting(true);
+
     try {
       const form = new FormData();
 
-      if (formData.name || formData.email) {
-        console.log("name or email is changed");
+      if (
+        formData.name !== userDetails?.name ||
+        formData.email !== userDetails?.email
+      ) {
+        const profileData = {
+          name: formData.name,
+          email: formData.email,
+        };
+        await api.patch("/user/profile", profileData);
       }
 
-      if (formData.panCard) form.append("pan", formData.panCard);
-      if (formData.aadharCard) form.append("aadhar", formData.aadharCard);
+      const uploadPromises: Promise<VerificationResponse>[] = [];
 
-      let resP: any, resA: any;
       if (formData.panCard) {
-        resP = await api.post("/verify/pan", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
-      }
-      if (formData.aadharCard) {
-        resA = await api.post("/verify/adhar", form, {
-          headers: { "Content-Type": "multipart/form-data" },
-        });
+        form.append("pan", formData.panCard);
+        uploadPromises.push(
+          api.post("/verify/pan", form, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        );
       }
 
-      if (!resP || (resP.status === 200 && (!resA || resA.status === 200))) {
-        toast({
-          title: "Success",
-          description: "Documents verified successfully",
-        });
-        setIsEditing(false);
-      } else {
-        throw new Error("Document verification failed");
+      if (formData.aadharCard) {
+        const aadharForm = new FormData();
+        aadharForm.append("aadhar", formData.aadharCard);
+        uploadPromises.push(
+          api.post("/verify/adhar", aadharForm, {
+            headers: { "Content-Type": "multipart/form-data" },
+          })
+        );
       }
+
+      if (uploadPromises.length) {
+        const results = await Promise.all(uploadPromises);
+        const hasFailures = results.some((result) => !result.success);
+
+        if (hasFailures) {
+          throw new Error("One or more document verifications failed");
+        }
+      }
+
+      toast({
+        title: "Success",
+        description: "Profile updated successfully",
+      });
+      setIsEditing(false);
+
+      // Refresh user data
+      // Assuming you have a refetch function from useUser hook
+      // await refetchUserDetails();
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to verify documents. Please try again.",
+        description:
+          error instanceof Error
+            ? error.message
+            : "An error occurred while updating profile",
         variant: "destructive",
       });
     } finally {
@@ -135,6 +255,10 @@ const ProfilePage = () => {
 
   const verificationItems = [
     {
+      label: "Image verification",
+      isVerified: !!userDetails?.avatar,
+    },
+    {
       label: "Verify Email",
       isVerified: !!userDetails?.email,
     },
@@ -150,30 +274,24 @@ const ProfilePage = () => {
 
   if (loadingUser) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Card Skeleton */}
           <div className="lg:col-span-1">
-            <Card className="h-fit border-[0.01rem] shadow-lg">
-              <CardContent className="p-6">
-                <div className="flex flex-col items-center space-y-6">
-                  <Skeleton className="h-24 w-24 rounded-full" />
-                  <div className="space-y-2 w-full text-center">
-                    <Skeleton className="h-6 w-40 mx-auto" />
-                    <Skeleton className="h-4 w-60 mx-auto" />
-                    <Skeleton className="h-4 w-60 mx-auto" />
+            <Card className="backdrop-blur-sm bg-background/60 border-none shadow-xl">
+              <CardContent className="p-8">
+                <div className="flex flex-col items-center space-y-8">
+                  <div className="relative w-32 h-32">
+                    <Skeleton className="absolute inset-0 rounded-full animate-pulse" />
+                    <div className="absolute inset-0 bg-gradient-to-tr from-primary/20 to-transparent rounded-full blur-xl" />
                   </div>
-                  <div className="w-full space-y-2">
-                    <Skeleton className="h-4 w-full" />
-                    <Skeleton className="h-4 w-4/5" />
-                    <Skeleton className="h-4 w-3/4" />
+                  <div className="space-y-4 w-full">
+                    <Skeleton className="h-6 w-3/4 mx-auto" />
+                    <Skeleton className="h-4 w-2/3 mx-auto" />
                   </div>
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Main Content Skeleton */}
           <div className="lg:col-span-2 space-y-6">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               {[1, 2, 3].map((i) => (
@@ -228,68 +346,52 @@ const ProfilePage = () => {
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <Breadcrumb className="mb-6">
-        <BreadcrumbList>
-          <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link to="/dashboard" className="flex items-center">
-                <Home className="h-4 w-4 mr-1" />
-                Dashboard
-              </Link>
-            </BreadcrumbLink>
-          </BreadcrumbItem>
-          <BreadcrumbSeparator />
-          <BreadcrumbItem>
-            <BreadcrumbPage>Profile</BreadcrumbPage>
-          </BreadcrumbItem>
-        </BreadcrumbList>
-      </Breadcrumb>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="mb-8"
+      >
+        <Breadcrumb>
+          <BreadcrumbList className="text-sm text-muted-foreground">
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link
+                  to="/dashboard"
+                  className="flex items-center hover:text-primary transition-colors"
+                >
+                  <Home className="h-4 w-4 mr-2" />
+                  Dashboard
+                </Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+            <BreadcrumbItem>
+              <BreadcrumbPage>Profile</BreadcrumbPage>
+            </BreadcrumbItem>
+          </BreadcrumbList>
+        </Breadcrumb>
+      </motion.div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Profile Overview Card - Left Column */}
-        <Card className="lg:col-span-1 h-fit border-[0.01rem] shadow-lg bg-gradient-to-br from-primary/10 via-primary/5 to-background">
-          <CardContent className="p-6">
-            <div className="flex flex-col items-center space-y-4">
-              <div className="relative">
-                <Avatar className="h-24 w-24 border-4 border-background shadow-lg ring-2 ring-primary/20">
-                  <AvatarImage
-                    src={
-                      userDetails?.avatar ||
-                      "https://media.gq.com/photos/5798cd2dbf91805850f35df9/1:1/w_1012,h_1012,c_limit/ana-de-armas-gq-0816-02.jpg"
-                    }
-                    alt={userDetails?.name}
-                  />
-                  <AvatarFallback className="bg-primary/10">
-                    {userDetails?.name?.charAt(0)}
-                  </AvatarFallback>
-                </Avatar>
-                {userDetails?.isVerified && (
-                  <Badge className="absolute -bottom-2 -right-2 bg-green-500/90 hover:bg-green-500">
-                    <CheckCircle2 className="h-4 w-4 mr-1" />
-                    Verified
-                  </Badge>
-                )}
-              </div>
-              <div className="text-center">
-                <h2 className="text-xl font-semibold">{userDetails?.name}</h2>
-                <p className="text-sm text-muted-foreground">
-                  {userDetails?.email}
-                </p>
-              </div>
+        <motion.div
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+        >
+          <ProfileCard
+            userDetails={userDetails}
+            verificationItems={verificationItems}
+          />
+        </motion.div>
 
-              {/* Profile Completion */}
-              <div className="w-full space-y-2">
-                <VerificationProgress items={verificationItems} />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Main Content - Right Column */}
-        <div className="lg:col-span-2 space-y-6">
-          {/* Statistics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <motion.div
+          initial={{ opacity: 0, x: 20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.4 }}
+          className="lg:col-span-2 space-y-8"
+        >
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {stats.map((stat, index) => (
               <StatCard
                 key={index}
@@ -299,6 +401,7 @@ const ProfilePage = () => {
               />
             ))}
           </div>
+
           <ProfileDetails
             userDetails={userDetails}
             documentStatus={documentStatus}
@@ -310,7 +413,7 @@ const ProfilePage = () => {
             handleInputChange={handleInputChange}
             handleSubmit={handleSubmit}
           />
-        </div>
+        </motion.div>
       </div>
     </div>
   );

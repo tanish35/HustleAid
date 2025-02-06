@@ -1,27 +1,41 @@
 @import "tailwindcss";
 
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Regular.ttf') format('truetype');
+  font-weight: normal;
+  font-style: normal;
+}
+
+@font-face {
+  font-family: 'Poppins';
+  src: url('/fonts/Poppins-Bold.ttf') format('truetype');
+  font-weight: bold;
+  font-style: normal;
+}
+
 @theme {
-  /* Light Theme */
-  --color-background: hsl(210, 36%, 96%);
-  --color-foreground: hsl(210, 22%, 20%);
+  /* Light Theme - Modern Update */
+  --color-background: hsl(220, 25%, 97%);
+  --color-foreground: hsl(225, 25%, 15%);
   --color-card: hsl(0, 0%, 100%);
-  --color-card-foreground: hsl(210, 22%, 20%);
-  --color-button-border: hsl(210, 16%, 82%);
+  --color-card-foreground: hsl(225, 25%, 15%);
+  --color-button-border: hsl(220, 15%, 90%);
   --color-popover: hsl(0, 0%, 100%);
-  --color-popover-foreground: hsl(210, 22%, 20%);
-  --color-primary: hsl(204, 86%, 53%);
+  --color-popover-foreground: hsl(225, 25%, 15%);
+  --color-primary: hsl(230, 85%, 60%);
   --color-primary-foreground: hsl(0, 0%, 100%);
-  --color-secondary: hsl(171, 100%, 41%);
-  --color-secondary-foreground: hsl(210, 22%, 20%);
-  --color-muted: hsl(210, 16%, 82%);
-  --color-muted-foreground: hsl(210, 22%, 30%);
-  --color-accent: hsl(340, 82%, 52%);
+  --color-secondary: hsl(160, 85%, 45%);
+  --color-secondary-foreground: hsl(225, 25%, 15%);
+  --color-muted: hsl(220, 15%, 90%);
+  --color-muted-foreground: hsl(225, 25%, 35%);
+  --color-accent: hsl(345, 85%, 55%);
   --color-accent-foreground: hsl(0, 0%, 100%);
-  --color-destructive: hsl(0, 84.2%, 60.2%);
+  --color-destructive: hsl(0, 85%, 60%);
   --color-destructive-foreground: hsl(0, 0%, 100%);
-  --color-border: hsl(210, 16%, 82%);
-  --color-input: hsl(210, 16%, 82%);
-  --color-ring: hsl(204, 86%, 53%, 0.15);
+  --color-border: hsl(220, 15%, 90%);
+  --color-input: hsl(220, 15%, 90%);
+  --color-ring: hsl(230, 85%, 60%, 0.15);
 }
 
 [data-theme="dark"] {
@@ -53,4 +67,5 @@ body {
   background-color: var(--color-background);
   color: var(--color-foreground);
   min-height: 100vh;
+  font-family: 'Poppins', system-ui, -apple-system, sans-serif;
 }

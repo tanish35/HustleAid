@@ -8,11 +8,11 @@ interface StatCardProps {
 
 export const StatCard = ({ label, value, prefix = "" }: StatCardProps) => {
   return (
-    <Card className="bg-primary/5">
-      <CardContent className="p-4">
-        <div className="flex flex-col">
-          <span className="text-sm text-muted-foreground">{label}</span>
-          <span className="text-2xl font-bold">
+    <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-muted hover:scale-105 transition-all duration-300 rounded-xl shadow-sm hover:shadow-md">
+      <CardContent className="p-6">
+        <div className="flex flex-col gap-2">
+          <span className="text-sm font-medium text-muted-foreground tracking-wide uppercase">{label}</span>
+          <span className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80">
             {prefix}
             {value}
           </span>

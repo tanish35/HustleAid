@@ -7,13 +7,7 @@ import {
   CardTitle,
 } from "../components/ui/card";
 import { Skeleton } from "../components/ui/skeleton";
-import {
-  Clock,
-  Coins,
-  Activity,
-  LayoutGrid,
-  List,
-} from "lucide-react";
+import { Clock, Coins, Activity, LayoutGrid, List } from "lucide-react";
 import { ProfileCard } from "../components/dashboard/ProfileCard";
 import { TokenListView } from "../components/dashboard/TokenListView";
 import { TokenCardView } from "../components/dashboard/TokenCardView";
@@ -24,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { TokenType, UserToken } from "@/types";
 
 const Dashboard = () => {
-  const [viewMode, setViewMode] = useState<'list' | 'grid'>('list');
+  const [viewMode, setViewMode] = useState<"list" | "grid">("list");
   const { loadingUser, userDetails } = useUser();
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -58,40 +52,109 @@ const Dashboard = () => {
     : dummyActivity;
 
   const transformUserTokens = (userTokens: UserToken[]) => {
-    return userTokens.map(token => ({
+    return userTokens.map((token) => ({
       id: token.tokenId,
       name: token.tokenType,
       count: token.balance,
       description: getTokenDescription(token.tokenType),
-      status: token.balance > 0 ? 'active' : 'pending'
+      status: token.balance > 0 ? "active" : "pending",
     }));
   };
 
   const getTokenDescription = (tokenType: TokenType) => {
     const descriptions: Record<TokenType, string> = {
-      'Loan': 'Financial assistance',
-      'Food': 'Meal support',
-      'Healthcare': 'Medical aid',
-      'Transportation': 'Travel assistance'
+      Loan: "Financial assistance",
+      Food: "Meal support",
+      Healthcare: "Medical aid",
+      Transportation: "Travel assistance",
     };
     return descriptions[tokenType];
   };
 
   const dummyTokens = [
-    { id: 1, name: "Loan" as TokenType, description: "Financial assistance", count: 0, status: 'pending' },
-    { id: 2, name: "Food" as TokenType, description: "Meal support", count: 5, status: 'active' },
-    { id: 3, name: "Healthcare" as TokenType, description: "Medical aid", count: 0, status: 'pending' },
-    { id: 4, name: "Transportation" as TokenType, description: "Travel assistance", count: 0, status: 'pending' },
+    {
+      id: 1,
+      name: "Loan" as TokenType,
+      description: "Financial assistance",
+      count: 0,
+      status: "pending",
+    },
+    {
+      id: 2,
+      name: "Food" as TokenType,
+      description: "Meal support",
+      count: 5,
+      status: "active",
+    },
+    {
+      id: 3,
+      name: "Healthcare" as TokenType,
+      description: "Medical aid",
+      count: 0,
+      status: "pending",
+    },
+    {
+      id: 4,
+      name: "Transportation" as TokenType,
+      description: "Travel assistance",
+      count: 0,
+      status: "pending",
+    },
   ];
 
-  const tokens = userDetails?.tokens?.length 
+  const tokens = userDetails?.tokens?.length
     ? transformUserTokens(userDetails.tokens)
     : dummyTokens;
 
   if (loadingUser) {
     return (
-      <div className="p-6 space-y-6 max-w-6xl mx-auto">
-        <Skeleton className="h-[500px] w-full rounded-xl" />
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="lg:col-span-1">
+            <Card>
+              <CardContent className="p-6 space-y-4">
+                <div className="flex items-center space-x-4">
+                  <Skeleton className="h-16 w-16 rounded-full" />
+                  <div className="space-y-2">
+                    <Skeleton className="h-4 w-[200px]" />
+                    <Skeleton className="h-4 w-[150px]" />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-3/4" />
+                </div>
+                <Skeleton className="h-10 w-full" />
+              </CardContent>
+            </Card>
+          </div>
+          <div className="lg:col-span-2 space-y-8">
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-32" />
+              </CardHeader>
+              <CardContent className="p-4 space-y-4">
+                {Array(4)
+                  .fill(0)
+                  .map((_, i) => (
+                    <Skeleton key={i} className="h-16 w-full" />
+                  ))}
+              </CardContent>
+            </Card>
+            <Card>
+              <CardHeader>
+                <Skeleton className="h-6 w-40" />
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {Array(3)
+                  .fill(0)
+                  .map((_, i) => (
+                    <Skeleton key={i} className="h-20 w-full" />
+                  ))}
+              </CardContent>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
@@ -114,7 +177,7 @@ const Dashboard = () => {
   };
 
   const toggleView = () => {
-    setViewMode(viewMode === 'list' ? 'grid' : 'list');
+    setViewMode(viewMode === "list" ? "grid" : "list");
   };
 
   return (
@@ -140,7 +203,7 @@ const Dashboard = () => {
                 onClick={toggleView}
                 className="ml-2"
               >
-                {viewMode === 'list' ? (
+                {viewMode === "list" ? (
                   <LayoutGrid className="h-5 w-5" />
                 ) : (
                   <List className="h-5 w-5" />
@@ -148,14 +211,19 @@ const Dashboard = () => {
               </Button>
             </CardHeader>
             <CardContent className="p-4">
-              {viewMode === 'list' ? (
-                <TokenListView tokens={tokens} onTokenClick={handleTokenClick} />
+              {viewMode === "list" ? (
+                <TokenListView
+                  tokens={tokens}
+                  onTokenClick={handleTokenClick}
+                />
               ) : (
-                <TokenCardView tokens={tokens} onTokenClick={handleTokenClick} />
+                <TokenCardView
+                  tokens={tokens}
+                  onTokenClick={handleTokenClick}
+                />
               )}
             </CardContent>
           </Card>
-
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center">
