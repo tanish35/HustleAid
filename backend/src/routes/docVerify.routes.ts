@@ -1,5 +1,5 @@
-import express from "express";
-import { getAadharAddress } from "../controllers/aadharController";
+import {Router} from "express";
+import {  getAadharDetails } from "../controllers/aadharController";
 import {
   getPanDetails,
   createMediaDirectoryMiddleware,
@@ -7,14 +7,13 @@ import {
 } from "../controllers/panController";
 import checkAuth from "../middleware/checkAuth";
 
-const router = express.Router();
+const router = Router();
 
-router.post("/adhar", checkAuth, getAadharAddress);
+router.post("/aadhar", checkAuth, getAadharDetails);
 router.post(
   "/pan",
   checkAuth,
   createMediaDirectoryMiddleware,
-  uploadPanMiddleware,
   getPanDetails
 );
 

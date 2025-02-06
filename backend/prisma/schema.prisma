@@ -16,6 +16,8 @@ model User {
   walletId   String?
   panNo      String?
   aadharNo   String?
+  dob        DateTime
+  gender     String?
   address    String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

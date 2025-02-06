@@ -4,10 +4,15 @@ import fs from "fs";
 import path from "path";
 import prisma from "../lib/prisma";
 import Tesseract from "tesseract.js";
+import { generateAIResponse } from "./llm.controller";
 
 const mediaPath: string = path.resolve(__dirname, "../../public/aadhar");
 
-export const createMediaDirectoryMiddleware = (req: any, res: any, next: any) => {
+export const createMediaDirectoryMiddleware = (
+  req: any,
+  res: any,
+  next: any
+) => {
   try {
     if (!fs.existsSync(mediaPath)) {
       fs.mkdirSync(mediaPath, { recursive: true });
@@ -31,7 +36,7 @@ const upload = multer({
   }),
 });
 
-export const getAadharAddress = [
+export const getAadharDetails = [
   createMediaDirectoryMiddleware,
   upload.single("aadhar"),
   expressAsyncHandler(async (req: any, res: any) => {
@@ -43,7 +48,7 @@ export const getAadharAddress = [
     const fileName = req.file.filename;
 
     try {
-      console.log("Processing Aadhar card image...");
+      console.log("Processing Aadhar card back image...");
       const ocrResult = await Tesseract.recognize(
         path.join(mediaPath, fileName),
         "eng+hin"
@@ -53,38 +58,66 @@ export const getAadharAddress = [
       console.log("OCR Text:", ocrText);
 
       // Extract Aadhar number
-      const aadharMatch = ocrText.match(/\d{4}\s\d{4}\s\d{4}/);
-      const aadharNo = aadharMatch ? aadharMatch[0].replace(/\s/g, '') : null;
-      console.log("Extracted Aadhar number:", aadharNo);
-      
-      if (!aadharNo) {
-        return res.status(400).json({ 
-          message: "Could not extract Aadhar number from the image" 
+      const aadharMatch = ocrText.match(/[2-9]{1}[0-9]{3}\s[0-9]{4}\s[0-9]{4}/);
+      const aadharNo = aadharMatch ? aadharMatch[0].replace(/\s/g, "") : null;
+
+      if (!aadharNo || aadharNo.length !== 12) {
+        return res.status(400).json({
+          message: "Invalid or missing Aadhar number in the image",
         });
       }
 
+      // Extract address using AI
+      const prompt = `Extract the complete address from this Aadhar card text. Return only the address, nothing else: ${ocrText}`;
+      const address = await generateAIResponse(prompt);
+
+      if (!address || address.trim().length === 0) {
+        try {
+          if (fs.existsSync(filePath)) {
+            fs.unlinkSync(filePath);
+          }
+        } catch (error) {
+          console.error("Error cleaning up file:", error);
+        }
+
+        return res.status(400).json({
+          success: false,
+          message:
+            "Could not extract address from the image. Please ensure the address is clearly visible in the image and try again.",
+          aadharNo,
+        });
+      }
+
+      console.log("Aadhar Number: ", aadharNo);
+      console.log("Address :", address);
+
       const updatedUser = await prisma.user.update({
         where: {
-          userId: req.user.userId
+          userId: req.user.userId,
         },
         data: {
-          aadharNo: aadharNo,
+          aadharNo,
+          address,
         },
       });
 
       if (!updatedUser) {
-        return res.status(500).json({ message: "Failed to update user record" });
+        return res
+          .status(500)
+          .json({ message: "Failed to update user record" });
       }
 
-      res.status(200).json({ 
+      res.status(200).json({
+        success: true,
         aadharNo,
-        message: "Aadhar number extracted and updated successfully" 
+        address,
+        message: "Aadhar information processed successfully",
       });
     } catch (error) {
       console.error("Error processing Aadhar card image:", error);
-      res.status(500).json({ 
+      res.status(500).json({
         message: "Failed to process Aadhar card image",
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: error instanceof Error ? error.message : "Unknown error",
       });
     } finally {
       try {
