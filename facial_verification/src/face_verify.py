@@ -70,14 +70,14 @@ import numpy as np
 
 def verify_faces(webcam_image_path, aadhaar_image_path):
     try:
-        # Configure DeepFace to use local weights
+        
         DeepFace.build_model("Facenet")
         
         result = DeepFace.verify(
             img1_path=webcam_image_path,
             img2_path=aadhaar_image_path,
             detector_backend="ssd",
-            model_name="Facenet",    # Use model_name instead of model
+            model_name="Facenet",    
             distance_metric="euclidean",
             enforce_detection=False,
             align=True
@@ -99,7 +99,7 @@ def verify_faces(webcam_image_path, aadhaar_image_path):
 if __name__ == "__main__":
     
     BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-    webcam_path = os.path.join(BASE_DIR, "images", "curr1.jpg")
+    webcam_path = os.path.join(BASE_DIR, "images", "curr.jpg")
     aadhaar_path = os.path.join(BASE_DIR, "images", "aadhaar.png")
     
     try:
