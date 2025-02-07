@@ -2,7 +2,6 @@ import { Request, Response } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
-import expressAsyncHandler from "express-async-handler";
 
 const BANK_API_URL = process.env.BANK_API_URL;
 const SECRET_KEY = process.env.JWT_SECRET as string;
@@ -15,8 +14,11 @@ function generateJWT() {
 }
 
 export const getBankDetails = asyncHandler(
-  async (req: Request, res: Response): Promise<void> => {
+  async (req: Request, res: Response) => {
     const panNo = req.params.panNo as string;
+    console.log("PAN No.:", panNo);
+    console.log("BANK_API_URL:", BANK_API_URL);
+
     if (!panNo) {
       res.status(400).json({ error: "PAN No. is required" });
       return;
@@ -24,23 +26,46 @@ export const getBankDetails = asyncHandler(
 
     const token = generateJWT();
 
-    try {
-      const response = await axios.get(`${BANK_API_URL}/${panNo}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+    const response = await axios.get(`${BANK_API_URL}/user/${panNo}`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      console.log(response.data);
-      res.json("data fetched");
-    } catch (error) {
-      console.error("Error fetching bank details:", error);
-      res.status(500).json({ error: "Failed to fetch bank details" });
-    }
+    console.log("Response from bank API:", response.data);
+    res.json(response.data);
   }
 );
 
-export const lsitUserInBank = expressAsyncHandler(
-  (req: Request, res: Response): void => {
-    const token = generateJWT();
-    res.json({ token });
+export const listUserInBank = async (
+  name: string,
+  email: string,
+  pan: string
+) => {
+  const token = generateJWT();
+
+  enum EmploymentType {
+    EMPLOYED,
+    UNEMPLOYED,
+    BUSINESS,
   }
-);
+
+  const income = Math.floor(Math.random() * 1000000 + 1);
+
+  try {
+    const res = await axios.post(
+      `${BANK_API_URL}/user`,
+      {
+        name,
+        email,
+        pan,
+        employmentType: EmploymentType[Math.floor(Math.random() * 3)],
+        income,
+      },
+      { headers: { Authorization: `Bearer ${token}` } }
+    );
+
+    return res.data;
+  } catch (error) {
+    console.error("Error listing user in bank:", error);
+    return null;
+  }
+};

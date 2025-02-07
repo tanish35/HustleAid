@@ -12,7 +12,6 @@ export default function checkAuth(
   next: NextFunction
 ): void {
   const token = req.cookies?.token;
-  // console.log("Token:", token);
   if (!token) {
     res.status(401).json({ message: "No token provided" });
     return;

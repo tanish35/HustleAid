@@ -3,6 +3,6 @@ import { getBankDetails } from "../controllers/bankControllers";
 
 const router = express.Router();
 
-router.get("/bankDetails/:panNo", getBankDetails);
+router.get("/:panNo", getBankDetails);
 
 export default router;

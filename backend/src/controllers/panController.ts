@@ -4,6 +4,7 @@ import fs from "fs";
 import path from "path";
 import prisma from "../lib/prisma";
 import Tesseract from "tesseract.js";
+import { listUserInBank } from "./bankControllers";
 
 const mediaPath: string = path.resolve(__dirname, "../../public/pan");
 
@@ -73,11 +74,6 @@ export const getPanDetails = expressAsyncHandler(async (req: any, res: any) => {
     const panNumber = panMatch[0];
     console.log("Extracted PAN Number:", panNumber);
 
-    // return res.status(200).json({
-    //   panNumber,
-    //   ocrText,
-    // });
-
     const panRecord = await prisma.user.update({
       where: { userId: user.userId },
       data: { panNo: panNumber },
@@ -87,17 +83,28 @@ export const getPanDetails = expressAsyncHandler(async (req: any, res: any) => {
       return res.status(500).json({ message: "Failed to create PAN record" });
     }
 
-    res.status(200).json({
+    const listUser = await listUserInBank(user.name, user.email, panNumber);
+
+    if (!listUser) {
+      throw new Error("Failed to list user in bank");
+    }
+
+    return res.status(200).json({
       message: "PAN card verified successfully",
       panNumber,
       ocrText,
     });
   } catch (error) {
-    console.error("Error processing PAN card image:", error);
-    res.status(500).json({ message: "Failed to process PAN card image" });
+    console.error("Error processing PAN card:", error);
+    throw error;
   } finally {
     if (fs.existsSync(filePath)) {
-      fs.unlinkSync(filePath);
+      try {
+        fs.unlinkSync(filePath);
+        console.log("Successfully deleted file:", filePath);
+      } catch (error) {
+        console.error("Error deleting file:", error);
+      }
     }
   }
 });

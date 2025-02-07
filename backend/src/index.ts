@@ -36,7 +36,7 @@ app.use(express.json());
 app.use("/api/auth", userRoutes);
 app.use("/api/verify", docVerify);
 app.use("/api/vendor", vendorRoutes);
-app.use("/api/bank", bankRoutes);
+app.use("/api/bank-details", bankRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
