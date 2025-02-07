@@ -2,9 +2,10 @@ import { Request, Response } from "express";
 import axios from "axios";
 import jwt from "jsonwebtoken";
 import asyncHandler from "express-async-handler";
+import expressAsyncHandler from "express-async-handler";
 
 const BANK_API_URL = process.env.BANK_API_URL;
-const SECRET_KEY = process.env.JWT_SECRET || "secret";
+const SECRET_KEY = process.env.JWT_SECRET as string;
 const TOKEN_EXPIRY = "2m";
 
 function generateJWT() {
@@ -34,5 +35,12 @@ export const getBankDetails = asyncHandler(
       console.error("Error fetching bank details:", error);
       res.status(500).json({ error: "Failed to fetch bank details" });
     }
+  }
+);
+
+export const lsitUserInBank = expressAsyncHandler(
+  (req: Request, res: Response): void => {
+    const token = generateJWT();
+    res.json({ token });
   }
 );

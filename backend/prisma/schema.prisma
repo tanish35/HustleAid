@@ -8,20 +8,20 @@ datasource db {
 }
 
 model User {
-  userId     String   @id @default(cuid())
+  userId     String    @id @default(cuid())
   name       String
-  email      String   @unique
+  email      String    @unique
   password   String?
-  isVerified Boolean  @default(false)
+  isVerified Boolean   @default(false)
   walletId   String?
   panNo      String?
   aadharNo   String?
-  dob        DateTime
+  dob        DateTime?
   gender     String?
   address    String?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-} 
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+}
 
 model Admin {
   userId String @id @unique
