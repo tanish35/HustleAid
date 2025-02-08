@@ -43,5 +43,5 @@ export const useUser = () => {
     getDetails();
   }, [getDetails]);
 
-  return { loadingUser, userDetails, updateUserDetails };
+  return { loadingUser, userDetails, updateUserDetails, setUserDetails };
 };

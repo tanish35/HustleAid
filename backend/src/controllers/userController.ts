@@ -191,3 +191,50 @@ export const getMe = asyncHandler(async (req: Request, res: Response) => {
     throw new Error("User not found");
   }
 });
+
+export const updateProfile = async (
+  req: Request,
+  res: Response
+): Promise<void> => {
+  try {
+    const { name, dob, gender } = req.body;
+    //@ts-ignore
+    const userId = req.user?.userId;
+
+    if (!userId) {
+      res.status(400).json({ message: "User ID is required" });
+      return;
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { userId },
+    });
+
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { userId },
+      data: {
+        name,
+        dob,
+        gender,
+
+        updatedAt: new Date(),
+      },
+    });
+
+    res.status(200).json({
+      message: "Profile updated successfully",
+      user: updatedUser,
+    });
+  } catch (error) {
+    console.error("Error updating profile:", error);
+    res.status(500).json({
+      message: "An error occurred while updating the profile",
+      error: (error as Error).message,
+    });
+  }
+};

@@ -26,6 +26,8 @@ interface ProfileFormData {
   email: string;
   panCard: File | null;
   aadharCard: File | null;
+  dob: Date | null;
+  gender: string;
 }
 
 interface VerificationResponse {
@@ -122,9 +124,8 @@ const ProfileCard = ({
   );
 };
 
-
 const ProfilePage = () => {
-  const { loadingUser, userDetails } = useUser();
+  const { loadingUser, userDetails, setUserDetails } = useUser();
   const [isEditing, setIsEditing] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
@@ -133,6 +134,8 @@ const ProfilePage = () => {
     email: "",
     panCard: null,
     aadharCard: null,
+    dob: null,
+    gender: "",
   });
 
   useEffect(() => {
@@ -142,6 +145,8 @@ const ProfilePage = () => {
         email: userDetails.email || "",
         panCard: null,
         aadharCard: null,
+        dob: userDetails.dob || null,
+        gender: userDetails.gender || "",
       });
     }
   }, [userDetails]);
@@ -157,16 +162,29 @@ const ProfilePage = () => {
 
     try {
       const form = new FormData();
+      try {
+        if (
+          formData.name !== userDetails?.name ||
+          formData.dob !== (userDetails?.dob || null) ||
+          formData.gender?.trim() !== (userDetails?.gender || "").trim()
+        ) {
+          const profileData = {
+            name: formData.name,
+            // email: formData.email,
+            dob: formData.dob,
+            gender: formData.gender,
+          };
 
-      if (
-        formData.name !== userDetails?.name ||
-        formData.email !== userDetails?.email
-      ) {
-        const profileData = {
-          name: formData.name,
-          email: formData.email,
-        };
-        await api.patch("/user/profile", profileData);
+          const res = await api.patch("/auth/update-profile", profileData, {
+            withCredentials: true,
+          });
+          console.log(res);
+          // console.log(profileData);
+          // console.log("formData", formData);
+          console.log("userDetails", userDetails);
+        }
+      } catch (err) {
+        console.log(err);
       }
 
       const uploadPromises: Promise<VerificationResponse>[] = [];
@@ -203,6 +221,15 @@ const ProfilePage = () => {
         title: "Success",
         description: "Profile updated successfully",
       });
+      const userResponse = await api.get("/auth/me", { withCredentials: true });
+      setUserDetails((prev) => ({
+        ...prev,
+        ...userResponse.data,
+        createdAt: new Date(userResponse.data.createdAt),
+      }));
+
+      console.log("Updated User Details:", userDetails);
+
       setIsEditing(false);
 
       // Refresh user data

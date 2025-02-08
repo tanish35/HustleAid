@@ -15,6 +15,8 @@ export interface UserDetails {
   activeSchemes?: number;
   approvedApplications?: number;
   aadharNo?: string;
+  dob?: Date;
+  gender?: string;
 }
 
 export interface UserActivity {

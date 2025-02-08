@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect } from "react";
 import {
   Edit,
   Loader2,
@@ -37,7 +37,7 @@ interface FormData {
   name: string;
   email: string;
   dob: Date | undefined;
-  gender: 'male' | 'female' | 'other' | string;
+  gender: "male" | "female" | "other" | string;
   address: string;
   panCard: File | null;
   aadharCard: File | null;
@@ -55,12 +55,17 @@ interface ProfileDetailsProps {
   handleSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
 }
 
-
-const InfoItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | null | undefined }) => (
+const InfoItem = ({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string | null | undefined;
+}) => (
   <div className="flex items-center gap-3">
-    <div className="p-2.5 rounded-lg bg-primary/10">
-      {icon}
-    </div>
+    <div className="p-2.5 rounded-lg bg-primary/10">{icon}</div>
     <div>
       <p className="text-sm font-medium text-secondary-foreground">{label}</p>
       {label === "Wallet ID" && value ? (
@@ -81,14 +86,19 @@ const InfoItem = ({ icon, label, value }: { icon: React.ReactNode, label: string
   </div>
 );
 
-
-const ProfileSection = ({ title, children }: { title: string, children: React.ReactNode }) => (
-  <Card className='border-muted/80 bg-background/100'>
+const ProfileSection = ({
+  title,
+  children,
+}: {
+  title: string;
+  children: React.ReactNode;
+}) => (
+  <Card className="border-muted/80 bg-background/100">
     <CardContent className="p-6">
-      <h3 className="font-semibold text-sm text-secondary-foreground mb-4">{title}</h3>
-      <div className="space-y-4">
-        {children}
-      </div>
+      <h3 className="font-semibold text-sm text-secondary-foreground mb-4">
+        {title}
+      </h3>
+      <div className="space-y-4">{children}</div>
     </CardContent>
   </Card>
 );
@@ -102,49 +112,54 @@ interface DocumentCardProps {
   isAadhar?: boolean;
 }
 
-const DocumentCard = ({ 
-  type, 
-  documentNumber, 
-  isVerified, 
-  icon, 
+const DocumentCard = ({
+  type,
+  documentNumber,
+  isVerified,
+  icon,
   hasImage,
   isAadhar = false,
-  userDetails 
+  userDetails,
 }: DocumentCardProps & { userDetails?: any }) => (
   <Card className="h-full border-muted-foreground/50 shadow-xl dark:shadow-cyan-950-xl bg-gradient-to-br from-background to-muted">
     <CardContent className="p-6">
       <div className="flex flex-col h-full">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2.5 rounded-lg bg-primary/10">
-              {icon}
-            </div>
+            <div className="p-2.5 rounded-lg bg-primary/10">{icon}</div>
             <h3 className="font-medium text-foreground">{type}</h3>
           </div>
-          <Badge 
+          <Badge
             variant={isVerified ? "default" : "outline"}
             className={cn(
-              isVerified ? 
-              "bg-secondary/10 text-secondary-foreground" : 
-              "bg-primary/10 text-primary-foreground"
+              isVerified
+                ? "bg-secondary/10 text-secondary-foreground"
+                : "bg-primary/10 text-primary-foreground"
             )}
           >
             {isVerified ? "Verified" : "Pending"}
           </Badge>
         </div>
-        
+
         <div className="mt-2">
-          <p className="text-sm font-medium text-secondary-foreground">Document Number</p>
-          <p className="font-medium mt-1 text-foreground">{documentNumber || "Not Available"}</p>
+          <p className="text-sm font-medium text-secondary-foreground">
+            Document Number
+          </p>
+          <p className="font-medium mt-1 text-foreground">
+            {documentNumber || "Not Available"}
+          </p>
         </div>
 
         {isAadhar && (
           <div className="mt-4">
             <div className="h-px bg-black/5 dark:bg-white/5 mb-4" />
             <div>
-              <p className="text-sm font-medium text-secondary-foreground mb-2">Address</p>
+              <p className="text-sm font-medium text-secondary-foreground mb-2">
+                Address
+              </p>
               <p className="text-sm leading-relaxed text-foreground">
-                {userDetails.address || "Address will be extracted from your Aadhar card"}
+                {userDetails.address ||
+                  "Address will be extracted from your Aadhar card"}
               </p>
             </div>
           </div>
@@ -152,9 +167,9 @@ const DocumentCard = ({
 
         {hasImage && (
           <div className="mt-4 flex justify-end">
-            <Button 
-              variant="ghost" 
-              size="sm" 
+            <Button
+              variant="ghost"
+              size="sm"
               className="text-xs hover:bg-muted"
             >
               View Document
@@ -166,7 +181,12 @@ const DocumentCard = ({
   </Card>
 );
 
-const DocumentUploadField = ({ name, value, onChange, isRequired }: {
+const DocumentUploadField = ({
+  name,
+  value,
+  onChange,
+  isRequired,
+}: {
   name: string;
   value: File | null;
   onChange: (file: File) => void;
@@ -177,10 +197,7 @@ const DocumentUploadField = ({ name, value, onChange, isRequired }: {
       {name}
       {isRequired && <span className="text-destructive">*</span>}
     </Label>
-    <DocumentUpload
-      label={`Upload ${name}`}
-      onImageUpload={onChange}
-    />
+    <DocumentUpload label={`Upload ${name}`} onImageUpload={onChange} />
   </div>
 );
 
@@ -191,7 +208,7 @@ const EditProfileForm = ({
   setFormData,
   isSubmitting,
   setIsEditing,
-  userDetails
+  userDetails,
 }: {
   formData: FormData;
   handleInputChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -204,7 +221,9 @@ const EditProfileForm = ({
   <form onSubmit={handleSubmit} className="space-y-8">
     <div className="grid grid-cols-1 gap-6">
       <div className="space-y-4 p-6 rounded-xl bg-card-section">
-        <h3 className="font-semibold text-sm text-secondary-foreground mb-4">Personal Information</h3>
+        <h3 className="font-semibold text-sm text-secondary-foreground mb-4">
+          Personal Information
+        </h3>
         <div className="grid gap-4">
           <div className="grid w-full items-center gap-2">
             <Label htmlFor="name" className="flex items-center gap-1">
@@ -219,7 +238,7 @@ const EditProfileForm = ({
               required
             />
           </div>
-          
+
           <div className="grid w-full items-center gap-2">
             <Label htmlFor="email" className="flex items-center gap-1">
               Email Address<span className="text-destructive">*</span>
@@ -257,20 +276,24 @@ const EditProfileForm = ({
                   <DatePicker
                     mode="single"
                     selected={formData.dob}
-                    onSelect={(date) => setFormData(prev => ({ ...prev, dob: date }))}
+                    onSelect={(date) =>
+                      setFormData((prev) => ({ ...prev, dob: date }))
+                    }
                     initialFocus
                   />
                 </PopoverContent>
               </Popover>
             </div>
-            
+
             <div className="grid items-center gap-2">
               <Label htmlFor="gender" className="flex items-center gap-1">
                 Gender<span className="text-destructive">*</span>
               </Label>
               <Select
                 value={formData.gender}
-                onValueChange={(value) => setFormData(prev => ({ ...prev, gender: value }))}
+                onValueChange={(value) =>
+                  setFormData((prev) => ({ ...prev, gender: value }))
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Select gender" />
@@ -291,7 +314,9 @@ const EditProfileForm = ({
           <DocumentUploadField
             name="PAN Card"
             value={formData.panCard}
-            onChange={(file) => setFormData(prev => ({ ...prev, panCard: file }))}
+            onChange={(file) =>
+              setFormData((prev) => ({ ...prev, panCard: file }))
+            }
             isRequired={!userDetails.panNo}
           />
         </div>
@@ -300,7 +325,9 @@ const EditProfileForm = ({
           <DocumentUploadField
             name="Aadhar Card"
             value={formData.aadharCard}
-            onChange={(file) => setFormData(prev => ({ ...prev, aadharCard: file }))}
+            onChange={(file) =>
+              setFormData((prev) => ({ ...prev, aadharCard: file }))
+            }
             isRequired={!userDetails.aadharNo}
           />
         </div>
@@ -316,11 +343,7 @@ const EditProfileForm = ({
       >
         Cancel
       </Button>
-      <Button
-        type="submit"
-        disabled={isSubmitting}
-        className="px-6 gap-2"
-      >
+      <Button type="submit" disabled={isSubmitting} className="px-6 gap-2">
         {isSubmitting && <Loader2 className="h-4 w-4 animate-spin" />}
         Save Changes
       </Button>
@@ -330,7 +353,7 @@ const EditProfileForm = ({
 
 const ViewProfileContent = ({
   userDetails,
-  documentStatus
+  documentStatus,
 }: {
   userDetails: any;
   documentStatus: any;
@@ -338,22 +361,26 @@ const ViewProfileContent = ({
   <div className="space-y-6 ">
     <ProfileSection title="Personal Information">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoItem 
+        <InfoItem
           icon={<User className="h-4 w-4 text-primary" />}
           label="Full Name"
           value={userDetails.name}
         />
-        <InfoItem 
+        <InfoItem
           icon={<Mail className="h-4 w-4 text-primary" />}
           label="Email Address"
           value={userDetails.email}
         />
-        <InfoItem 
+        <InfoItem
           icon={<Calendar className="h-4 w-4 text-primary" />}
           label="Date of Birth"
-          value={userDetails.dob ? format(new Date(userDetails.dob), "MMMM dd, yyyy") : null}
+          value={
+            userDetails.dob
+              ? format(new Date(userDetails.dob), "MMMM dd, yyyy")
+              : null
+          }
         />
-        <InfoItem 
+        <InfoItem
           icon={<User className="h-4 w-4 text-primary" />}
           label="Gender"
           value={userDetails.gender}
@@ -363,22 +390,22 @@ const ViewProfileContent = ({
 
     <ProfileSection title="Account Information">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <InfoItem 
+        <InfoItem
           icon={<CreditCard className="h-4 w-4 text-primary" />}
           label="User ID"
           value={userDetails.userId}
         />
-        <InfoItem 
+        <InfoItem
           icon={<CreditCard className="h-4 w-4 text-primary" />}
           label="Wallet ID"
           value={userDetails.walletId}
         />
-        <InfoItem 
+        <InfoItem
           icon={<Calendar className="h-4 w-4 text-primary" />}
           label="Member Since"
           value={format(new Date(userDetails.createdAt), "MMMM dd, yyyy")}
         />
-        <InfoItem 
+        <InfoItem
           icon={<Calendar className="h-4 w-4 text-primary" />}
           label="Last Updated"
           value={format(new Date(userDetails.updatedAt), "MMMM dd, yyyy")}
@@ -387,14 +414,14 @@ const ViewProfileContent = ({
     </ProfileSection>
 
     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-      <DocumentCard 
+      <DocumentCard
         type="PAN Card"
         documentNumber={userDetails.panNo}
         isVerified={documentStatus.panCard.isVerified}
         icon={<CreditCard className="h-4 w-4 text-primary" />}
         hasImage={Boolean(userDetails.panCardImage)}
       />
-      <DocumentCard 
+      <DocumentCard
         type="Aadhar Card"
         documentNumber={userDetails.aadharNo}
         isVerified={documentStatus.aadhar.isVerified}
@@ -420,21 +447,21 @@ export const ProfileDetails = ({
 }: ProfileDetailsProps) => {
   useEffect(() => {
     if (isEditing) {
-      setFormData(prevData => ({
+      setFormData((prevData) => ({
         ...prevData,
-        name: userDetails.name || '',
-        email: userDetails.email || '',
-        address: userDetails.address || '',
+        name: userDetails.name || "",
+        email: userDetails.email || "",
+        address: userDetails.address || "",
       }));
     }
   }, [isEditing, userDetails, setFormData]);
 
   const isProfileComplete = Boolean(
     userDetails.name &&
-    userDetails.email &&
-    userDetails.panNo &&
-    userDetails.aadharNo &&
-    userDetails.address
+      userDetails.email &&
+      userDetails.panNo &&
+      userDetails.aadharNo &&
+      userDetails.address
   );
 
   return (
@@ -458,7 +485,7 @@ export const ProfileDetails = ({
                 className="gap-2"
               >
                 <Edit className="h-4 w-4" />
-                {isProfileComplete ? 'Edit Profile' : 'Complete Profile'}
+                {isProfileComplete ? "Edit Profile" : "Complete Profile"}
               </Button>
             )}
           </div>

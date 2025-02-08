@@ -19,6 +19,7 @@ model User {
   dob        DateTime?
   gender     String?
   address    String?
+  profile_pic String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @updatedAt
 }
